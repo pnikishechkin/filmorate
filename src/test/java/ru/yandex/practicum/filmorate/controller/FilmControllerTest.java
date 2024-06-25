@@ -21,14 +21,14 @@ public class FilmControllerTest {
     public void addCorrectFilms_getFilms_correctData() {
 
         Film film =
-                Film.builder().id(0).name("Фильм").
-                        description("Описание").duration(30).
-                        releaseDate(LocalDate.of(2005, 12, 10)).build();
+                Film.builder().id(0).name("Фильм")
+                        .description("Описание").duration(30)
+                        .releaseDate(LocalDate.of(2005, 12, 10)).build();
         Film newFilm = controller.addFilm(film);
 
-        film = Film.builder().id(1).name("Фильм 2").
-                description("Описание 2").duration(50).
-                releaseDate(LocalDate.of(2003, 12, 10)).build();
+        film = Film.builder().id(1).name("Фильм 2")
+                .description("Описание 2").duration(50)
+                .releaseDate(LocalDate.of(2003, 12, 10)).build();
         Film newFilm2 = controller.addFilm(film);
 
         Collection<Film> films = this.controller.getFilms();
@@ -43,9 +43,9 @@ public class FilmControllerTest {
 
         ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> {
             Film film =
-                    Film.builder().id(0).
-                            description("Описание").duration(30).
-                            releaseDate(LocalDate.of(2005, 12, 10)).build();
+                    Film.builder().id(0)
+                            .description("Описание").duration(30)
+                            .releaseDate(LocalDate.of(2005, 12, 10)).build();
             controller.addFilm(film);
         });
 
@@ -58,11 +58,12 @@ public class FilmControllerTest {
 
         ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> {
             Film film =
-                    Film.builder().id(0).name("Название").
-                            description("12345678901234567890123456789012345678901234567890123456789012345678901234567" +
-                                    "8901234567890123456789012345678901234567890123456789012345678901234567890123456" +
-                                    "789012345678901234567890123456789012345678901234567890").duration(30).
-                            releaseDate(LocalDate.of(2005, 12, 10)).build();
+                    Film.builder().id(0).name("Название")
+                            .description(
+                                    "12345678901234567890123456789012345678901234567890123456789012345678901234567" +
+                                            "8901234567890123456789012345678901234567890123456789012345678901234567890123456" +
+                                            "789012345678901234567890123456789012345678901234567890").duration(30)
+                            .releaseDate(LocalDate.of(2005, 12, 10)).build();
             controller.addFilm(film);
         });
 
@@ -75,9 +76,9 @@ public class FilmControllerTest {
 
         ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> {
             Film film =
-                    Film.builder().id(0).name("Название").
-                            description("Описание").duration(30).
-                            releaseDate(LocalDate.of(1800, 12, 10)).build();
+                    Film.builder().id(0).name("Название")
+                            .description("Описание").duration(30)
+                            .releaseDate(LocalDate.of(1800, 12, 10)).build();
             controller.addFilm(film);
         });
 
@@ -90,9 +91,9 @@ public class FilmControllerTest {
 
         ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> {
             Film film =
-                    Film.builder().id(0).name("Название").
-                            description("Описание").duration(-10).
-                            releaseDate(LocalDate.of(2000, 12, 10)).build();
+                    Film.builder().id(0).name("Название")
+                            .description("Описание").duration(-10)
+                            .releaseDate(LocalDate.of(2000, 12, 10)).build();
             controller.addFilm(film);
         });
 
