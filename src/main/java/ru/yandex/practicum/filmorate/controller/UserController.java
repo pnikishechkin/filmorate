@@ -26,6 +26,12 @@ public class UserController {
     public User addUser(@RequestBody User user) {
         this.checkUser(user);
         user.setId(getNewId());
+
+        if (user.getName() == null || user.getName().isEmpty()) {
+            log.debug("Имя пользователя не задано, задание логина в качестве имени");
+            user.setName(user.getLogin());
+        }
+
         log.debug("Добавление нового пользователя с идентификатором {}", user.getId());
         users.put(user.getId(), user);
         return user;
@@ -39,6 +45,12 @@ public class UserController {
         }
         if (users.containsKey(user.getId())) {
             checkUser(user);
+
+            if (user.getName() == null || user.getName().isEmpty()) {
+                log.debug("Имя пользователя не задано, задание логина в качестве имени");
+                user.setName(user.getLogin());
+            }
+
             log.debug("Изменение параметров пользователя с идентификатором {}", user.getId());
             User oldUser = users.get(user.getId());
             oldUser.setName(user.getName());
@@ -51,7 +63,7 @@ public class UserController {
         throw new ValidationException("Ошибка! Пользователя с заданным идентификатором не существует");
     }
 
-    public void checkUser(User user) {
+    private void checkUser(User user) {
         if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
             log.error("Ошибка! Электронная почта не может быть пустой и должна содержать символ @");
             throw new ValidationException("Ошибка! Электронная почта не может быть пустой и должна содержать символ @");
@@ -64,13 +76,10 @@ public class UserController {
             log.error("Ошибка! Дата рождения не может быть в будущем");
             throw new ValidationException("Ошибка! Дата рождения не может быть в будущем");
         }
-        if (user.getName() == null || user.getName().isEmpty()) {
-            log.debug("Имя пользователя не задано, задание логина в качестве имени");
-            user.setName(user.getLogin());
-        }
+
     }
 
-    public int getNewId() {
+    private int getNewId() {
         int maxId = users.keySet().stream().mapToInt(id -> id).max().orElse(0);
         return ++maxId;
     }

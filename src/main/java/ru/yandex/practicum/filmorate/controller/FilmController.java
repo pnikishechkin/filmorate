@@ -51,7 +51,7 @@ public class FilmController {
         throw new ValidationException("Ошибка! Фильма с заданным идентификатором не существует");
     }
 
-    public void checkFilm(Film film) {
+    private void checkFilm(Film film) {
         if (film.getName() == null || film.getName().isEmpty()) {
             log.error("Ошибка! Название фильма не может быть пустым");
             throw new ValidationException("Ошибка! Название фильма не может быть пустым");
@@ -70,7 +70,7 @@ public class FilmController {
         }
     }
 
-    public int getNewId() {
+    private int getNewId() {
         int maxId = films.keySet().stream().mapToInt(id -> id).max().orElse(0);
         return ++maxId;
     }
