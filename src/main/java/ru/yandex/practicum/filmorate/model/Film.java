@@ -14,7 +14,7 @@ import java.util.Set;
 public class Film {
     private Integer id;
     private String name;
-    private Set<Integer> usersLike;
+    private Set<Integer> usersIdLike;
     private String description;
     private LocalDate releaseDate;
     private Integer duration;

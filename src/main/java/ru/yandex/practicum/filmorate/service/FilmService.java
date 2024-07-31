@@ -1,52 +1,90 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
-    private FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
-    public FilmService(InMemoryFilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+    public Collection<Film> getFilms() {
+        return filmStorage.getFilms();
     }
 
-    public FilmStorage getFilmStorage() {
-        return filmStorage;
+    public Film getFilmById(Integer id) {
+        if (filmStorage.containsFilmById(id)) {
+            return filmStorage.getFilmById(id);
+        } else {
+            log.error("Ошибка! Фильма с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
+        }
+    }
+
+    public Film addFilm(Film film) {
+        this.checkFilm(film);
+        return filmStorage.addFilm(film);
+    }
+
+    public Film editFilm(Film film) {
+        if (filmStorage.containsFilmById(film.getId())) {
+            this.checkFilm(film);
+            log.debug("Изменение параметров фильма с идентификатором {}", film.getId());
+            return filmStorage.editFilm(film);
+        } else {
+            log.error("Ошибка! Фильма с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
+        }
     }
 
     public void addUserLike(Integer filmId, Integer userId) {
-        if (filmStorage.containsFilmById(filmId)) {
-            filmStorage.getFilmById(filmId).getUsersLike().add(userId);
+        if (!filmStorage.containsFilmById(filmId)) {
+            log.error("Ошибка! Фильма с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
         }
+        if (!userStorage.containsUserById(userId)) {
+            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
+        }
+
+        filmStorage.getFilmById(filmId).getUsersIdLike().add(userId);
     }
 
     public void deleteUserLike(Integer filmId, Integer userId) {
-        if (filmStorage.containsFilmById(filmId)) {
-            filmStorage.getFilmById(filmId).getUsersLike().remove(userId);
+
+        if (!filmStorage.containsFilmById(filmId)) {
+            log.error("Ошибка! Фильма с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
         }
+        if (!userStorage.containsUserById(userId)) {
+            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
+        }
+
+        filmStorage.getFilmById(filmId).getUsersIdLike().remove(userId);
     }
 
-    public List<Film> getPopularFilms(int count) {
+    public Collection<Film> getPopularFilms(int count) {
         return filmStorage.getFilms()
-                .stream().sorted(Comparator.comparingInt(f -> f.getUsersLike().size()))
-                .limit(count).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparingInt(f -> f.getUsersIdLike().size()))
+                .limit(count).collect(Collectors.toList()).reversed();
     }
 
-    public void checkFilm(Film film) {
+    private void checkFilm(Film film) {
         if (film.getName() == null || film.getName().isEmpty()) {
             log.error("Ошибка! Название фильма не может быть пустым");
             throw new ValidationException("Ошибка! Название фильма не может быть пустым");
@@ -64,4 +102,5 @@ public class FilmService {
             throw new ValidationException("Ошибка! Продолжительность фильма должна быть положительным числом");
         }
     }
+
 }

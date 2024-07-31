@@ -1,42 +1,41 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+
 import java.util.Collection;
-import java.util.List;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@RequiredArgsConstructor
 public class FilmController {
 
     private final FilmService filmService;
-    private final FilmStorage filmStorage;
-
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-        this.filmStorage = filmService.getFilmStorage();
-    }
 
     @GetMapping
     public Collection<Film> getFilms() {
-        return filmStorage.getFilms();
+        return filmService.getFilms();
     }
 
     @GetMapping("/{id}")
     public Film getFilm(@PathVariable Integer id) {
-        return filmStorage.getFilmById(id);
+        return filmService.getFilmById(id);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@RequestBody Film film) {
-        filmService.checkFilm(film);
-        return filmStorage.addFilm(film);
+        return filmService.addFilm(film);
+    }
+
+    @PutMapping
+    public Film editFilm(@RequestBody Film film) {
+        return filmService.editFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -51,27 +50,8 @@ public class FilmController {
         filmService.deleteUserLike(id, userId);
     }
 
-    @GetMapping("/popular?count={count}")
-    public List<Film> getPopular(@PathVariable Integer count) {
-        if (count == null)
-            count = 10;
+    @GetMapping("/popular")
+    public Collection<Film> getPopular(@RequestParam(value="count", defaultValue="10") Integer count) {
         return filmService.getPopularFilms(count);
-    }
-
-    @PutMapping
-    public Film editFilm(@RequestBody Film film) {
-        if (film.getId() == null) {
-            log.error("Ошибка! Идентификатор фильма не задан");
-            throw new ValidationException("Ошибка! Идентификатор фильма не задан");
-        }
-
-        if (filmStorage.containsFilmById(film.getId())) {
-            filmService.checkFilm(film);
-            log.debug("Изменение параметров фильма с идентификатором {}", film.getId());
-            return filmStorage.editFilm(film);
-        } else {
-            log.error("Ошибка! Фильма с заданным идентификатором не существует");
-            throw new ValidationException("Ошибка! Фильма с заданным идентификатором не существует");
-        }
     }
 }

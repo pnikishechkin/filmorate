@@ -1,51 +1,99 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private UserStorage userStorage;
+    private final InMemoryUserStorage userStorage;
 
-    public UserService(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
+    public Collection<User> getUsers() {
+        return userStorage.getUsers();
     }
 
-    public UserStorage getUserStorage() {
-        return userStorage;
+    public User getUserById(Integer id) {
+        if (userStorage.containsUserById(id)) {
+            return userStorage.getUserById(id);
+        } else {
+            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
+        }
     }
 
-    public void addFriend(Integer firstUserId, Integer secondUserId) {
+    public User addUser(User user) {
+        this.checkUser(user);
+
+        if (user.getName() == null || user.getName().isEmpty()) {
+            log.debug("Имя пользователя не задано, задание логина в качестве имени");
+            user.setName(user.getLogin());
+        }
+
+        return userStorage.addUser(user);
+    }
+
+    public User editUser(User user) {
+        if (userStorage.containsUserById(user.getId())) {
+            this.checkUser(user);
+            if (user.getName() == null || user.getName().isEmpty()) {
+                log.debug("Имя пользователя не задано, задание логина в качестве имени");
+                user.setName(user.getLogin());
+            }
+            return userStorage.editUser(user);
+        } else {
+            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
+        }
+    }
+
+    public Collection<User> addFriend(Integer firstUserId, Integer secondUserId) {
         if (userStorage.containsUserById(firstUserId) && userStorage.containsUserById(secondUserId)) {
-            userStorage.getUserById(firstUserId).getFriends().add(secondUserId);
-            userStorage.getUserById(secondUserId).getFriends().add(firstUserId);
+            userStorage.getUserById(firstUserId).getFriendsId().add(secondUserId);
+            userStorage.getUserById(secondUserId).getFriendsId().add(firstUserId);
+            return List.of(userStorage.getUserById(firstUserId), userStorage.getUserById(secondUserId));
+        } else {
+            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
         }
     }
 
     public void deleteFriend(Integer firstUserId, Integer secondUserId) {
         if (userStorage.containsUserById(firstUserId) && userStorage.containsUserById(secondUserId)) {
-            userStorage.getUserById(firstUserId).getFriends().remove(secondUserId);
-            userStorage.getUserById(secondUserId).getFriends().remove(firstUserId);
-        }
-    }
-
-    public Set<Integer> getFriends(Integer userId) {
-        if (userStorage.containsUserById(userId)) {
-            return userStorage.getUserById(userId).getFriends();
+            userStorage.getUserById(firstUserId).getFriendsId().remove(secondUserId);
+            userStorage.getUserById(secondUserId).getFriendsId().remove(firstUserId);
         } else {
-            return null;
+            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
         }
     }
 
-    public void checkUser(User user) {
+    public Set<User> getFriends(Integer userId) {
+        if (userStorage.containsUserById(userId)) {
+            return userStorage.getFriends(userId);
+        } else {
+            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
+        }
+    }
+
+    public Set<User> getCommonFriends(Integer id, Integer otherId) {
+        Set<User> res = this.getFriends(id);
+        res.retainAll(this.getFriends(otherId));
+        return res;
+    }
+
+    private void checkUser(User user) {
         if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
             log.error("Ошибка! Электронная почта не может быть пустой и должна содержать символ @");
             throw new ValidationException("Ошибка! Электронная почта не может быть пустой и должна содержать символ @");
@@ -59,4 +107,5 @@ public class UserService {
             throw new ValidationException("Ошибка! Дата рождения не может быть в будущем");
         }
     }
+
 }
