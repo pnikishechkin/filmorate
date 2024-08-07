@@ -24,67 +24,44 @@ public class UserService {
     }
 
     public User getUserById(Integer id) {
-        if (userStorage.containsUserById(id)) {
-            return userStorage.getUserById(id);
-        } else {
-            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
-        }
+        return userStorage.getUserById(id).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с " +
+                "заданным идентификатором не существует"));
     }
 
     public User addUser(User user) {
         this.checkUser(user);
-
-        if (user.getName() == null || user.getName().isEmpty()) {
-            log.debug("Имя пользователя не задано, задание логина в качестве имени");
-            user.setName(user.getLogin());
-        }
-
         return userStorage.addUser(user);
     }
 
     public User editUser(User user) {
-        if (userStorage.containsUserById(user.getId())) {
-            this.checkUser(user);
-            if (user.getName() == null || user.getName().isEmpty()) {
-                log.debug("Имя пользователя не задано, задание логина в качестве имени");
-                user.setName(user.getLogin());
-            }
-            return userStorage.editUser(user);
-        } else {
-            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
-        }
+        User res = userStorage.editUser(user).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с " +
+                "заданным идентификатором не существует"));
+        this.checkUser(res);
+        return res;
     }
 
     public Collection<User> addFriend(Integer firstUserId, Integer secondUserId) {
-        if (userStorage.containsUserById(firstUserId) && userStorage.containsUserById(secondUserId)) {
-            userStorage.getUserById(firstUserId).getFriendsId().add(secondUserId);
-            userStorage.getUserById(secondUserId).getFriendsId().add(firstUserId);
-            return List.of(userStorage.getUserById(firstUserId), userStorage.getUserById(secondUserId));
-        } else {
-            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
-        }
+        User user1 = userStorage.getUserById(firstUserId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
+        User user2 = userStorage.getUserById(secondUserId).orElseThrow(() -> new NotFoundException("Ошибка! " +
+                "Пользователя с заданным идентификатором не существует"));
+        user1.getFriendsId().add(secondUserId);
+        user2.getFriendsId().add(firstUserId);
+        return List.of(user1, user2);
     }
 
     public void deleteFriend(Integer firstUserId, Integer secondUserId) {
-        if (userStorage.containsUserById(firstUserId) && userStorage.containsUserById(secondUserId)) {
-            userStorage.getUserById(firstUserId).getFriendsId().remove(secondUserId);
-            userStorage.getUserById(secondUserId).getFriendsId().remove(firstUserId);
-        } else {
-            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
-        }
+
+        User user1 = userStorage.getUserById(firstUserId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
+        User user2 = userStorage.getUserById(secondUserId).orElseThrow(() -> new NotFoundException("Ошибка! " +
+                "Пользователя с заданным идентификатором не существует"));
+        user1.getFriendsId().remove(secondUserId);
+        user2.getFriendsId().remove(firstUserId);
+
     }
 
     public Set<User> getFriends(Integer userId) {
-        if (userStorage.containsUserById(userId)) {
-            return userStorage.getFriends(userId);
-        } else {
-            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
-        }
+        userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
+        return userStorage.getFriends(userId);
     }
 
     public Set<User> getCommonFriends(Integer id, Integer otherId) {

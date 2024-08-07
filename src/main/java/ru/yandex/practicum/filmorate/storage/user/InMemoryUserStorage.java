@@ -20,23 +20,32 @@ public class InMemoryUserStorage implements UserStorage {
     public User addUser(User user) {
         user.setId(getNewId());
         user.setFriendsId(new HashSet<>());
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public User editUser(User user) {
+    public Optional<User> editUser(User user) {
         User oldUser = users.get(user.getId());
-        oldUser.setName(user.getName());
-        oldUser.setBirthday(user.getBirthday());
-        oldUser.setLogin(user.getLogin());
-        oldUser.setEmail(user.getEmail());
-        return oldUser;
+        if (oldUser != null) {
+            if (user.getName() == null || user.getName().isEmpty()) {
+                oldUser.setName(user.getLogin());
+            } else {
+                oldUser.setName(user.getName());
+            }
+            oldUser.setBirthday(user.getBirthday());
+            oldUser.setLogin(user.getLogin());
+            oldUser.setEmail(user.getEmail());
+        }
+        return Optional.ofNullable(oldUser);
     }
 
     @Override
-    public User getUserById(Integer id) {
-        return users.get(id);
+    public Optional<User> getUserById(Integer id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override

@@ -6,12 +6,14 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,12 +29,7 @@ public class FilmService {
     }
 
     public Film getFilmById(Integer id) {
-        if (filmStorage.containsFilmById(id)) {
-            return filmStorage.getFilmById(id);
-        } else {
-            log.error("Ошибка! Фильма с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
-        }
+        return filmStorage.getFilmById(id).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует"));
     }
 
     public Film addFilm(Film film) {
@@ -41,41 +38,28 @@ public class FilmService {
     }
 
     public Film editFilm(Film film) {
-        if (filmStorage.containsFilmById(film.getId())) {
-            this.checkFilm(film);
-            log.debug("Изменение параметров фильма с идентификатором {}", film.getId());
-            return filmStorage.editFilm(film);
-        } else {
-            log.error("Ошибка! Фильма с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
-        }
+        log.debug("Изменение параметров фильма с идентификатором {}", film.getId());
+        Film res = filmStorage.editFilm(film).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с заданным " +
+                "идентификатором не существует"));
+        checkFilm(res);
+        return res;
     }
 
     public void addUserLike(Integer filmId, Integer userId) {
-        if (!filmStorage.containsFilmById(filmId)) {
-            log.error("Ошибка! Фильма с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
-        }
-        if (!userStorage.containsUserById(userId)) {
-            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
-        }
-
-        filmStorage.getFilmById(filmId).getUsersIdLike().add(userId);
+        Film film = filmStorage.getFilmById(filmId).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с " +
+                "заданным идентификатором не существует"));
+        User user = userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с " +
+                "заданным идентификатором не существует"));
+        film.getUsersIdLike().add(userId);
     }
 
     public void deleteUserLike(Integer filmId, Integer userId) {
 
-        if (!filmStorage.containsFilmById(filmId)) {
-            log.error("Ошибка! Фильма с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
-        }
-        if (!userStorage.containsUserById(userId)) {
-            log.error("Ошибка! Пользователя с заданным идентификатором не существует");
-            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
-        }
-
-        filmStorage.getFilmById(filmId).getUsersIdLike().remove(userId);
+        Film film = filmStorage.getFilmById(filmId).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с " +
+                "заданным идентификатором не существует"));
+        User user = userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с " +
+                "заданным идентификатором не существует"));
+        film.getUsersIdLike().remove(userId);
     }
 
     public Collection<Film> getPopularFilms(int count) {
