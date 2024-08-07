@@ -1,77 +1,57 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@RequiredArgsConstructor
 public class FilmController {
 
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> getFilms() {
-        return films.values();
+        return filmService.getFilms();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable Integer id) {
+        return filmService.getFilmById(id);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@RequestBody Film film) {
-        this.checkFilm(film);
-        film.setId(getNewId());
-        log.debug("Добавление нового фильма с идентификатором {}", film.getId());
-        films.put(film.getId(), film);
-        return film;
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film editFilm(@RequestBody Film film) {
-        if (film.getId() == null) {
-            log.error("Ошибка! Идентификатор фильма не задан");
-            throw new ValidationException("Ошибка! Идентификатор фильма не задан");
-        }
-        if (films.containsKey(film.getId())) {
-            checkFilm(film);
-            log.debug("Изменение параметров фильма с идентификатором {}", film.getId());
-            Film oldFilm = films.get(film.getId());
-            oldFilm.setName(film.getName());
-            oldFilm.setDescription(film.getDescription());
-            oldFilm.setDuration(film.getDuration());
-            oldFilm.setReleaseDate(film.getReleaseDate());
-            return oldFilm;
-        }
-        log.error("Ошибка! Фильма с заданным идентификатором не существует");
-        throw new ValidationException("Ошибка! Фильма с заданным идентификатором не существует");
+        return filmService.editFilm(film);
     }
 
-    private void checkFilm(Film film) {
-        if (film.getName() == null || film.getName().isEmpty()) {
-            log.error("Ошибка! Название фильма не может быть пустым");
-            throw new ValidationException("Ошибка! Название фильма не может быть пустым");
-        }
-        if (film.getDescription().length() > 200) {
-            log.error("Ошибка! Максимальная длина описания фильма — 200 символов");
-            throw new ValidationException("Ошибка! Максимальная длина описания фильма — 200 символов");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("Ошибка! Дата релиза фильма не может быть раньше 28 декабря 1895 года");
-            throw new ValidationException("Ошибка! Дата релиза фильма не может быть раньше 28 декабря 1895 года");
-        }
-        if (film.getDuration() < 0) {
-            log.error("Ошибка! Продолжительность фильма должна быть положительным числом");
-            throw new ValidationException("Ошибка! Продолжительность фильма должна быть положительным числом");
-        }
+    @PutMapping("/{id}/like/{userId}")
+    public void setLike(@PathVariable Integer id,
+                        @PathVariable Integer userId) {
+        filmService.addUserLike(id, userId);
     }
 
-    private int getNewId() {
-        int maxId = films.keySet().stream().mapToInt(id -> id).max().orElse(0);
-        return ++maxId;
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable Integer id,
+                           @PathVariable Integer userId) {
+        filmService.deleteUserLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getPopular(@RequestParam(value = "count", defaultValue = "10") Integer count) {
+        return filmService.getPopularFilms(count);
     }
 }
