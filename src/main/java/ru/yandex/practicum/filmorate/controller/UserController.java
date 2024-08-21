@@ -20,14 +20,14 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getUsers() {
-        return userService.getUsers();
+        return userService.getAll();
     }
 
     @GetMapping("/{id}")
     public User getUser(@PathVariable Integer id) {
-        return userService.getUserById(id);
+        return userService.getById(id);
     }
-
+/*
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User user) {
@@ -62,5 +62,7 @@ public class UserController {
                                       @PathVariable Integer otherId) {
         return userService.getCommonFriends(id, otherId);
     }
+
+ */
 
 }
