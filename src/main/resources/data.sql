@@ -5,17 +5,6 @@ INSERT INTO "films" ("film_id", "name", "description", "release_date", "duration
 VALUES (1, 'Терминатор', 'Терминатор!', '1990-05-19', 50);
  */
 
-INSERT INTO genres (genre_name)
-VALUES ('Комедия');
-
-INSERT INTO genres (genre_name)
-VALUES ('Детектив');
-
-INSERT INTO genres (genre_name)
-VALUES ('Боевик');
-
-INSERT INTO genres (genre_name)
-VALUES ('Драма');
 
 INSERT INTO ratings (rating_name)
 VALUES ('G');
@@ -28,6 +17,28 @@ VALUES ('R');
 INSERT INTO ratings (rating_name)
 VALUES ('NC-17');
 
+
+INSERT INTO genres (genre_name)
+VALUES ('Комедия');
+
+INSERT INTO genres (genre_name)
+VALUES ('Драма');
+
+INSERT INTO genres (genre_name)
+VALUES ('Мультфильм');
+
+INSERT INTO genres (genre_name)
+VALUES ('Триллер');
+
+INSERT INTO genres (genre_name)
+VALUES ('Документальный');
+
+INSERT INTO genres (genre_name)
+VALUES ('Боевик');
+
+/* Тестовые данные */
+
+/*
 INSERT INTO films (film_name, rating_id, description, release_date, duration)
 VALUES ('Терминатор', 1, 'Большой железный', '1990-05-19', 90);
 
@@ -46,6 +57,7 @@ VALUES ('second@yandex.ru', 'Bigi', 'Лёха', '1985-02-20');
 INSERT INTO users (email, login, user_name, birthday)
 VALUES ('third@yandex.ru', 'Gena', 'Гена', '1996-01-05');
 
+
 INSERT INTO films_genres (film_id, genre_id)
 VALUES (1, 1);
 
@@ -63,3 +75,29 @@ VALUES (3, 2);
 
 INSERT INTO films_genres (film_id, genre_id)
 VALUES (3, 3);
+
+INSERT INTO users_friends (user_id, friend_id)
+VALUES (1, 2);
+
+INSERT INTO users_friends (user_id, friend_id)
+VALUES (1, 3);
+
+INSERT INTO users_friends (user_id, friend_id)
+VALUES (2, 1);
+
+INSERT INTO users_friends (user_id, friend_id)
+VALUES (2, 3);
+
+INSERT INTO users_films_likes (user_id, film_id)
+VALUES (1, 1);
+
+INSERT INTO users_films_likes (user_id, film_id)
+VALUES (1, 2);
+
+INSERT INTO users_films_likes (user_id, film_id)
+VALUES (1, 3);
+
+INSERT INTO users_films_likes (user_id, film_id)
+VALUES (2, 1);
+
+*/

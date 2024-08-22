@@ -20,14 +20,14 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getUsers() {
-        return userService.getAll();
+        return userService.getUsers();
     }
 
     @GetMapping("/{id}")
     public User getUser(@PathVariable Integer id) {
-        return userService.getById(id);
+        return userService.getUserById(id);
     }
-/*
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User user) {
@@ -35,15 +35,20 @@ public class UserController {
         return userService.addUser(user);
     }
 
-    @PutMapping
-    public User editUser(@RequestBody User user) {
-        return userService.editUser(user);
+    @PutMapping("/{id}/friends/{friendId}")
+    public Collection<User> addFriend(@PathVariable Integer id,
+                                      @PathVariable Integer friendId) {
+        return userService.addFriend(id, friendId);
     }
 
-    @PutMapping("/{id}/friends/{friendId}")
-    public Collection<User> addToFriends(@PathVariable Integer id,
-                                         @PathVariable Integer friendId) {
-        return userService.addFriend(id, friendId);
+    @GetMapping("/{id}/friends")
+    public Set<User> getFriends(@PathVariable Integer id) {
+        return userService.getFriends(id);
+    }
+
+    @PutMapping
+    public User updateUser(@RequestBody User user) {
+        return userService.updateUser(user);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -52,17 +57,9 @@ public class UserController {
         userService.deleteFriend(id, friendId);
     }
 
-    @GetMapping("/{id}/friends")
-    public Set<User> getFriends(@PathVariable Integer id) {
-        return userService.getFriends(id);
-    }
-
     @GetMapping("/{id}/friends/common/{otherId}")
     public Set<User> getCommonFriends(@PathVariable Integer id,
                                       @PathVariable Integer otherId) {
         return userService.getCommonFriends(id, otherId);
     }
-
- */
-
 }

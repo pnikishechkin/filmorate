@@ -33,10 +33,15 @@ public class FilmController {
     public Film addFilm(@RequestBody Film film) {
         return filmService.addFilm(film);
     }
-/*
+
+    @DeleteMapping
+    public Boolean deleteFilm(@RequestBody Film film) {
+        return filmService.deleteFilm(film);
+    }
+
     @PutMapping
-    public Film editFilm(@RequestBody Film film) {
-        return filmService.editFilm(film);
+    public Film updateFilm(@RequestBody Film film) {
+        return filmService.updateFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -55,6 +60,5 @@ public class FilmController {
     public Collection<Film> getPopular(@RequestParam(value = "count", defaultValue = "10") Integer count) {
         return filmService.getPopularFilms(count);
     }
-    */
 
 }

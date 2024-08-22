@@ -10,9 +10,10 @@ import java.util.Set;
 @Builder
 public class User {
     private Integer id;
-    private Set<Integer> friendsId;
+    private Set<User> friends;
     private String email;
     private String login;
     private String name;
     private LocalDate birthday;
+    private Set<Film> likeFilms;
 }

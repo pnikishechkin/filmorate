@@ -1,14 +1,10 @@
 package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.User;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
-public class InMemoryUserRepository implements UserRepository {
-
+public class InMemoryUserRepository {
+/*
     private final Map<Integer, User> users = new HashMap<>();
 
     @Override
@@ -68,4 +64,6 @@ public class InMemoryUserRepository implements UserRepository {
         int maxId = users.keySet().stream().mapToInt(id -> id).max().orElse(0);
         return ++maxId;
     }
+
+ */
 }

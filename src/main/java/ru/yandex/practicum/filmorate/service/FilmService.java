@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
+import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.rating.RatingDbRepository;
-import ru.yandex.practicum.filmorate.repository.user.UserRepository;
+import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -18,6 +22,8 @@ public class FilmService {
 
     private final FilmDbRepository filmDbRepository;
     private final RatingDbRepository ratingDbRepository;
+    private final GenreDbRepository genreDbRepository;
+    private final UserDbRepository userDbRepository;
 
     public List<Film> getFilms() {
         return filmDbRepository.getAll();
@@ -29,59 +35,48 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        if (ratingDbRepository.getById(film.getRating().getId()).isPresent()) {
-            throw new NotFoundException("Ошибка! Рейтинга с заданным идентификатором не существует");
+        if (ratingDbRepository.getById(film.getMpa().getId()).isEmpty()) {
+            throw new ValidationException("Ошибка! Рейтинга с заданным идентификатором не существует");
         }
-        // this.checkFilm(film);
+        this.checkFilm(film);
+        if (film.getGenres() != null) {
+            film.getGenres().forEach(genre -> {
+                if (genreDbRepository.getById(genre.getId()).isEmpty()) {
+                    throw new ValidationException("Ошибка! Жанра с заданным идентификатором не существует");
+                }
+            });
+        }
         return filmDbRepository.addFilm(film);
     }
 
-/*
-    public Film editFilm(Film film) {
+    public Boolean deleteFilm(Film film) {
+        if (filmDbRepository.getById(film.getId()).isEmpty()) {
+            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
+        }
+        return filmDbRepository.deleteFilm(film);
+    }
+
+    public Film updateFilm(Film film) {
         log.debug("Изменение параметров фильма с идентификатором {}", film.getId());
-        Film res = filmRepository.editFilm(film).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с заданным " +
-                "идентификатором не существует"));
-        // final Film f = filmRepository.getFilmById(id).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует"));
-        // final Rating rating = film.getRating().getId
-        // List<Integer> genreIds = film.getGenres.stream().map(Genre::getId).toList(); // orElseThrow
-        // List<Genres> genres = genreRepository.getGenresByIds(genreIds); // orElseThrow
 
-//        f.setName(film.getName());
-//        f.setDescription(film.getDescription());
-//        f.setDuration(film.getDuration());
-//        f.setReleaseDate(film.getReleaseDate());
-//        f.setRatingId();
-//        f.setGenreIds();
-//        f.setUsersIdLike(); // у пользователя лучше хранить список фильмов понравившихся
-
-        //filmRepository.editFilm(f);
-
-        checkFilm(res);
-        return res;
+        if (filmDbRepository.getById(film.getId()).isEmpty()) {
+            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
+        }
+        if (ratingDbRepository.getById(film.getMpa().getId()).isEmpty()) {
+            throw new NotFoundException("Ошибка! Рейтинга с заданным идентификатором не существует");
+        }
+        this.checkFilm(film);
+        return filmDbRepository.updateFilm(film);
     }
 
     public void addUserLike(Integer filmId, Integer userId) {
-        Film film = filmRepository.getFilmById(filmId).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с " +
-                "заданным идентификатором не существует"));
-        User user = userRepository.getUserById(userId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с " +
-                "заданным идентификатором не существует"));
-        //film.getUsersIdLike().add(userId);
-    }
-
-    public void deleteUserLike(Integer filmId, Integer userId) {
-
-        Film film = filmRepository.getFilmById(filmId).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с " +
-                "заданным идентификатором не существует"));
-        User user = userRepository.getUserById(userId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с " +
-                "заданным идентификатором не существует"));
-        //film.getUsersIdLike().remove(userId);
-    }
-
-    public Collection<Film> getPopularFilms(int count) {
-        return null;
-//        return filmRepository.getFilms()
-//                .stream().sorted(Comparator.comparingInt(f -> f.getUsersIdLike().size()))
-//                .limit(count).collect(Collectors.toList()).reversed();
+        if (filmDbRepository.getById(filmId).isEmpty()) {
+            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
+        }
+        if (userDbRepository.getById(userId).isEmpty()) {
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
+        }
+        filmDbRepository.adduserLike(filmId, userId);
     }
 
     private void checkFilm(Film film) {
@@ -102,5 +97,18 @@ public class FilmService {
             throw new ValidationException("Ошибка! Продолжительность фильма должна быть положительным числом");
         }
     }
-*/
+
+    public void deleteUserLike(Integer filmId, Integer userId) {
+        if (filmDbRepository.getById(filmId).isEmpty()) {
+            throw new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует");
+        }
+        if (userDbRepository.getById(userId).isEmpty()) {
+            throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
+        }
+        filmDbRepository.deleteUserLike(filmId, userId);
+    }
+
+    public Set<Film> getPopularFilms(Integer count) {
+        return filmDbRepository.getPopularFilms(count);
+    }
 }

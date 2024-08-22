@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.repository.film;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -15,10 +15,8 @@ public class FilmRowMapper implements RowMapper<Film> {
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
 
         ResultSetMetaData metaData = rs.getMetaData();
-        for (int i = 1; i <= metaData.getColumnCount(); i++)
-            System.out.println(metaData.getColumnName(i));
 
-        Rating rating = Rating.builder().
+        Mpa rating = Mpa.builder().
                 id(rs.getInt("rating_id")).
                 name(rs.getString("rating_name")).
                 build();
@@ -29,7 +27,7 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .description(rs.getString("description"))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
-                .rating(rating)
+                .mpa(rating)
                 .build();
     }
 }

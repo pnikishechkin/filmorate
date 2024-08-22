@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
