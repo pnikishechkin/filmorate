@@ -200,7 +200,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     @Override
     public void deleteUserLike(Integer filmId, Integer userId) {
         jdbc.update(SQL_DELETE_USER_FILMS_LIKES,
-                Map.of("film_id", filmId,"user_id", userId));
+                Map.of("film_id", filmId, "user_id", userId));
     }
 
     @Override
