@@ -2,21 +2,26 @@ package ru.yandex.practicum.filmorate.repository.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface FilmRepository {
+    List<Film> getAll();
 
-    List<Film> getFilms();
+    Optional<Film> getById(Integer id);
 
     Film addFilm(Film film);
 
-    Optional<Film> editFilm(Film film);
+    Boolean deleteFilm(Film film);
 
-    void deleteFilm(Film film);
+    Film updateFilm(Film film);
 
-    boolean containsFilmById(Integer id);
+    void adduserLike(Integer filmId, Integer userId);
 
-    Optional<Film> getFilmById(Integer id);
+    void deleteUserLike(Integer filmId, Integer userId);
+
+    Set<Film> getLikeFilmsByUserId(Integer userId);
+
+    Set<Film> getPopularFilms(Integer count);
 }

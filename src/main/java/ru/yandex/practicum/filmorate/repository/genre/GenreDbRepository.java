@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import java.util.*;
 
 @Repository
-public class GenreDbRepository extends BaseDbRepository<Genre> {
+public class GenreDbRepository extends BaseDbRepository<Genre> implements GenreRepository {
     public GenreDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper);
     }
@@ -28,21 +28,25 @@ public class GenreDbRepository extends BaseDbRepository<Genre> {
     private static final String SQL_GET_GENRES_BY_ID =
             "select * from GENRES WHERE genre_id=:id;";
 
+    @Override
     public List<Genre> getAll() {
         return getMany(SQL_GET_ALL_GENRES);
     }
 
+    @Override
     public Optional<Genre> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
         return getOne(SQL_GET_GENRES_BY_ID, params);
     }
 
+    @Override
     public Set<Genre> getGenresByFilmId(Integer filmId) {
         Map<String, Object> params = new HashMap<>();
         params.put("film_id", filmId);
         return new LinkedHashSet<>(jdbc.query(SQL_GET_GENRES_BY_FILM_ID, params, mapper));
     }
 
+    @Override
     public Set<Integer> getGenresIdByFilmId(Integer filmId) {
         Map<String, Object> params = new HashMap<>();
         params.put("film_id", filmId);

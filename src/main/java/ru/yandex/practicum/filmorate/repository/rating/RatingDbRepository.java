@@ -14,7 +14,7 @@ import java.util.Optional;
 
 
 @Repository
-public class RatingDbRepository extends BaseDbRepository<Mpa> {
+public class RatingDbRepository extends BaseDbRepository<Mpa> implements RatingRepository {
 
     public RatingDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Mpa> mapper) {
         super(jdbc, mapper);
@@ -29,15 +29,18 @@ public class RatingDbRepository extends BaseDbRepository<Mpa> {
     private static final String SQL_INSERT_RATING =
             "INSERT INTO ratings (rating_name) VALUES (:rating_name);";
 
+    @Override
     public List<Mpa> getAll() {
         return getMany(SQL_GET_ALL_RATINGS);
     }
 
+    @Override
     public Optional<Mpa> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
         return getOne(SQL_GET_RATINGS_BY_ID, params);
     }
 
+    @Override
     public Mpa addRating(Mpa rating) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource();

@@ -14,7 +14,7 @@ import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 import java.util.*;
 
 @Repository
-public class UserDbRepository extends BaseDbRepository<User> {
+public class UserDbRepository extends BaseDbRepository<User> implements UserRepository {
 
     private final FilmDbRepository filmDbRepository;
 
@@ -79,10 +79,12 @@ public class UserDbRepository extends BaseDbRepository<User> {
                 "UPDATE films SET rating_id=:rating_id, film_name=:film_name, description=:description, " +
                         "release_date=:release_date, duration=:duration WHERE film_id=:film_id;";
     */
+    @Override
     public List<User> getAll() {
         return getMany(SQL_GET_ALL_USERS);
     }
 
+    @Override
     public Optional<User> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
         Optional<User> user = getOne(SQL_GET_USER_BY_ID, params);
@@ -98,6 +100,7 @@ public class UserDbRepository extends BaseDbRepository<User> {
         return user;
     }
 
+    @Override
     public Set<User> getFriendsByUserId(Integer id) {
         // Находим список идентификаторов друзей
         Set<Integer> userIds = new HashSet<>(jdbc.query(SQL_GET_USER_FRIENDS_IDs, Map.of("user_id", id),
@@ -107,6 +110,7 @@ public class UserDbRepository extends BaseDbRepository<User> {
         return new LinkedHashSet<>(getMany(SQL_GET_USERS_BY_IDs, Map.of("ids", userIds)));
     }
 
+    @Override
     public User addUser(User user) {
         // Добавление записи в таблицу users
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -123,6 +127,7 @@ public class UserDbRepository extends BaseDbRepository<User> {
         return user;
     }
 
+    @Override
     public void addFriend(Integer userId, Integer friendId) {
         // Добавление записи в таблицу users
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -132,6 +137,7 @@ public class UserDbRepository extends BaseDbRepository<User> {
         jdbc.update(SQL_INSERT_USER_FRIEND, params);
     }
 
+    @Override
     public User updateUser(User user) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params = new MapSqlParameterSource();
@@ -175,11 +181,13 @@ public class UserDbRepository extends BaseDbRepository<User> {
         return getById(user.getId()).get();
     }
 
+    @Override
     public void deleteFriend(Integer userId, Integer friendId) {
         jdbc.update(SQL_DELETE_USER_FRIEND,
                 Map.of("user_id", userId, "friend_id", friendId));
     }
 
+    @Override
     public Set<User> getCommonFriends(Integer id, Integer otherId) {
         return new LinkedHashSet<>(getMany(SQL_GET_COMMON_USER,
                 Map.of("id", id, "other_id", otherId)));

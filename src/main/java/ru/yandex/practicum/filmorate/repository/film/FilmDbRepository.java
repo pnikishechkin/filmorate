@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 
 @Repository
 @Primary
-@Qualifier("filmDbRepository") // TODO интерфейсы для всех репозиториев
-public class FilmDbRepository extends BaseDbRepository<Film> {
+@Qualifier("filmDbRepository")
+public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepository {
 
     private final GenreDbRepository genreDbRepository;
 
@@ -73,6 +73,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> {
                     "(SELECT film_id FROM USERS_FILMS_LIKES GROUP BY film_id ORDER BY COUNT(film_id) DESC) LIMIT " +
                     ":count;";
 
+    @Override
     public List<Film> getAll() {
         // Получаем все фильмы с включенными данными рейтинга
         List<Film> films = jdbc.query(SQL_GET_ALL_FILMS, mapper);
@@ -94,6 +95,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> {
         return films;
     }
 
+    @Override
     public Optional<Film> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
         Optional<Film> film = getOne(SQL_GET_FILM_BY_ID, params);
@@ -107,6 +109,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> {
         return film;
     }
 
+    @Override
     public Film addFilm(Film film) {
         // Добавление записи в таблицу films
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -136,6 +139,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> {
         return film;
     }
 
+    @Override
     public Boolean deleteFilm(Film film) {
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -152,6 +156,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> {
         return (res == 1);
     }
 
+    @Override
     public Film updateFilm(Film film) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params = new MapSqlParameterSource();
@@ -184,6 +189,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> {
         return getById(film.getId()).get();
     }
 
+    @Override
     public void adduserLike(Integer filmId, Integer userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("film_id", filmId);
@@ -191,11 +197,13 @@ public class FilmDbRepository extends BaseDbRepository<Film> {
         jdbc.update(SQL_INSERT_USER_FILMS_LIKES, params);
     }
 
+    @Override
     public void deleteUserLike(Integer filmId, Integer userId) {
         jdbc.update(SQL_DELETE_USER_FILMS_LIKES,
                 Map.of("film_id", filmId,"user_id", userId));
     }
 
+    @Override
     public Set<Film> getLikeFilmsByUserId(Integer userId) {
         // Находим список идентификаторов фильмов, на которых есть лайк указанного пользователя
         Set<Integer> filmIds = new HashSet<>(jdbc.query(SQL_GET_FILM_IDs_LIKE_USER, Map.of("user_id", userId),
@@ -209,6 +217,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> {
         return new LinkedHashSet<>(films);
     }
 
+    @Override
     public Set<Film> getPopularFilms(Integer count) {
         Set<Film> films = new LinkedHashSet<>(getMany(SQL_GET_POPULAR_FILMS, Map.of("count", count)));
         // Получаем список всех жанров
