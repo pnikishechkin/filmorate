@@ -55,36 +55,6 @@ public class UserService {
         return user.getFriends();
     }
 
-//    public User editUser(User user) {
-//        User res = userStorage.editUser(user).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с " +
-//                "заданным идентификатором не существует"));
-//        this.checkUser(res);
-//        return res;
-//    }
-//
-
-//
-//    public void deleteFriend(Integer firstUserId, Integer secondUserId) {
-//
-//        User user1 = userStorage.getUserById(firstUserId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
-//        User user2 = userStorage.getUserById(secondUserId).orElseThrow(() -> new NotFoundException("Ошибка! " +
-//                "Пользователя с заданным идентификатором не существует"));
-//        user1.getFriendsId().remove(secondUserId);
-//        user2.getFriendsId().remove(firstUserId);
-//
-//    }
-//
-//    public Set<User> getFriends(Integer userId) {
-//        userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
-//        return userStorage.getFriends(userId);
-//    }
-//
-//    public Set<User> getCommonFriends(Integer id, Integer otherId) {
-//        Set<User> res = this.getFriends(id);
-//        res.retainAll(this.getFriends(otherId));
-//        return res;
-//    }
-//
     private void checkUser(User user) {
         if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
             log.error("Ошибка! Электронная почта не может быть пустой и должна содержать символ @");
