@@ -43,9 +43,6 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
             "INSERT INTO users_friends (user_id, friend_id) " +
                     "VALUES (:user_id, :friend_id);";
 
-    private static final String SQL_DELETE_USERS_FILMS_LIKES =
-            "DELETE FROM users_films_likes WHERE user_id=:user_id";
-
     private static final String SQL_DELETE_USER_FRIEND =
             "DELETE FROM users_friends WHERE user_id=:user_id AND friend_id=:friend_id;";
 
@@ -64,21 +61,6 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
                     "INNER JOIN users_friends AS uf2 ON uf1.FRIEND_ID = uf2.FRIEND_ID " +
                     "WHERE uf1.user_id=:id AND uf2.user_id=:other_id);";
 
-    /*
-        private static final String SQL_INSERT_FILMS_GENRES =
-                "INSERT INTO films_genres (film_id, genre_id) " +
-                        "VALUES (:film_id, :genre_id);";
-
-        private static final String SQL_DELETE_FILMS_GENRES =
-                "DELETE FROM films_genres WHERE film_id=:film_id";
-
-        private static final String SQL_DELETE_FILM =
-                "DELETE FROM films WHERE film_id=:film_id";
-
-        private static final String SQL_UPDATE_FILM =
-                "UPDATE films SET rating_id=:rating_id, film_name=:film_name, description=:description, " +
-                        "release_date=:release_date, duration=:duration WHERE film_id=:film_id;";
-    */
     @Override
     public List<User> getAll() {
         return getMany(SQL_GET_ALL_USERS);
@@ -140,23 +122,25 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     @Override
     public User updateUser(User user) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params = new MapSqlParameterSource();
         params.addValue("user_id", user.getId());
 
         /*
+        Не требуется учесть изменения у пользователей по лайкам и друзьям?
+        Они не могут быть переданы сразу как объект json?
+
         // Удаление связей пользователя с фильмами
         jdbc.update(SQL_DELETE_USERS_FILMS_LIKES, params);
 
         // Удаление записей пользователя с друзьями
         jdbc.update(SQL_DELETE_USERS_FRIENDS, params);
 
-        // TODO batch обновление
+        // batch
         // Добавить лайки к фильмам
         for (Film film: user.getLikeFilms()) {
             filmDbRepository.adduserLike(film.getId(), user.getId());
         }
 
-        // TODO batch обновление
+        // batch
         // Добавить записи друзей
         for (User u: user.getFriends()) {
             params = new MapSqlParameterSource();
