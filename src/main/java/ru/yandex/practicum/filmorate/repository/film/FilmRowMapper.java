@@ -16,10 +16,10 @@ public class FilmRowMapper implements RowMapper<Film> {
 
         ResultSetMetaData metaData = rs.getMetaData();
 
-        Mpa rating = Mpa.builder().
-                id(rs.getInt("rating_id")).
-                name(rs.getString("rating_name")).
-                build();
+        Mpa rating = Mpa.builder()
+                .id(rs.getInt("rating_id"))
+                .name(rs.getString("rating_name"))
+                .build();
 
         return Film.builder()
                 .id(rs.getInt("film_id"))
