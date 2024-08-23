@@ -25,15 +25,7 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
                     .releaseDate(rs.getDate("release_date").toLocalDate())
                     .duration(rs.getInt("duration"))
                     .build();
-
-            // film.setRatingId(rs.getInt("rating_id"));
-
             data.add(film);
-
-//            String country = rs.getString("country_name");
-//            data.putIfAbsent(country, new ArrayList<>());
-//            String city = rs.getString("city_name");
-//            data.get(country).add(city);
         }
         return data;
     }

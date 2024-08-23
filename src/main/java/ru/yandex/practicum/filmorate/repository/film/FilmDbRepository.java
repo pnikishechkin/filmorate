@@ -162,10 +162,12 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         params = new MapSqlParameterSource();
         params.addValue("film_id", film.getId());
 
+        // Редактирование предполагает, что в запросе пришли данные с новыми жанрами фильма?
+
         // Удаление связей фильма с жанрами
 //        jdbc.update(SQL_DELETE_FILMS_GENRES, params);
 
-        // TODO batch обновление
+        // batch
         // Добавление связей фильма с жанрами
 //        for (Genre genre : film.getGenres()) {
 //            params = new MapSqlParameterSource();

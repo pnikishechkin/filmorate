@@ -125,8 +125,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         params.addValue("user_id", user.getId());
 
         /*
-        Не требуется учесть изменения у пользователей по лайкам и друзьям?
-        Они не могут быть переданы сразу как объект json?
+        Требуется учитывать изменения у пользователей по лайкам и друзьям?
+        Могут ли они быть переданы сразу как объект json?
 
         // Удаление связей пользователя с фильмами
         jdbc.update(SQL_DELETE_USERS_FILMS_LIKES, params);
