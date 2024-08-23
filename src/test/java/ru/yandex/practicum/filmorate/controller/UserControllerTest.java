@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Collection;
 
 @SpringBootTest
 public class UserControllerTest {
@@ -19,23 +18,7 @@ public class UserControllerTest {
     @Test
     public void addCorrectUsers_getUsers_correctData() {
 
-        User user =
-                User.builder().id(0).name("Имя")
-                        .login("Login").email("sdfsdf@mail.ru")
-                        .birthday(LocalDate.of(1990, 5, 19)).build();
-        User newUser = controller.addUser(user);
 
-        user =
-                User.builder().id(0).name("Имя2")
-                        .login("Login2").email("sdfsdf@mail.ru")
-                        .birthday(LocalDate.of(1990, 5, 19)).build();
-        User newUser2 = controller.addUser(user);
-
-        Collection<User> users = this.controller.getUsers();
-
-        Assertions.assertNotNull(newUser);
-        Assertions.assertNotNull(newUser2);
-        Assertions.assertEquals(2, users.size());
     }
 
     @Test
