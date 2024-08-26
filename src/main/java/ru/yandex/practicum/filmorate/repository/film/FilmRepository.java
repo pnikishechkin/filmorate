@@ -23,5 +23,5 @@ public interface FilmRepository {
 
     Set<Film> getLikeFilmsByUserId(Integer userId);
 
-    Set<Film> getPopularFilms(Integer count);
+    List<Film> getPopularFilms(Integer count);
 }

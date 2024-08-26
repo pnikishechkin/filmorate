@@ -31,28 +31,4 @@ public class BaseDbRepository<T> {
     protected List<T> getMany(String query, Map<String, Object> params) {
         return jdbc.query(query, params, mapper);
     }
-
-//    protected long insert(String query, MapSqlParameterSource params) {
-//        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-//        jdbc.update(query, params, keyHolder);
-//
-//        return
-//
-//        jdbc.update(connection -> {
-//            PreparedStatement ps = connection
-//                    .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-//            for (int idx = 0; idx < params.length; idx++) {
-//                ps.setObject(idx + 1, params[idx]);
-//            }
-//            return ps;}, keyHolder);
-//
-//        Long id = keyHolder.getKeyAs(Long.class);
-//
-//        // Возвращаем id нового объекта
-//        if (id == null) {
-//            throw new InternalServerException("Не удалось сохранить данные");
-//        }
-//
-//        return id;
-//    }
 }

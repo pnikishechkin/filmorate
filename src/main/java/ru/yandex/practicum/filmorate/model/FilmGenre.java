@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -7,9 +8,9 @@ import lombok.ToString;
 
 @Data
 @Builder
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 @ToString
-public class Genre {
-    private Integer id;
-    private String name;
+public class FilmGenre {
+    private Integer film_id;
+    private Integer genre_id;
 }

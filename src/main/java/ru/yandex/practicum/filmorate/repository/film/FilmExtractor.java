@@ -4,29 +4,51 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 @Component
-public class FilmExtractor implements ResultSetExtractor<List<Film>> {
+public class FilmExtractor implements ResultSetExtractor<Film> {
 
     @Override
-    public List<Film> extractData(ResultSet rs)
+    public Film extractData(ResultSet rs)
             throws SQLException, DataAccessException {
-        List<Film> data = new ArrayList<>();
+        Film film = null;
+
         while (rs.next()) {
-            Film film = Film.builder()
-                    .id(rs.getInt("film_id"))
-                    .name(rs.getString("name"))
-                    .description(rs.getString("description"))
-                    .releaseDate(rs.getDate("release_date").toLocalDate())
-                    .duration(rs.getInt("duration"))
-                    .build();
-            data.add(film);
+
+            // Данные о фильме - заполняем объект только один раз
+            if (film == null) {
+                film = Film.builder()
+                        .id(rs.getInt("film_id"))
+                        .name(rs.getString("film_name"))
+                        .description(rs.getString("description"))
+                        .releaseDate(rs.getDate("release_date").toLocalDate())
+                        .duration(rs.getInt("duration"))
+                        .build();
+
+                film.setMpa(Mpa.builder().id(rs.getInt("rating_id"))
+                        .name(rs.getString("rating_name"))
+                        .build());
+
+                film.setGenres(new LinkedHashSet<>());
+            }
+
+            // Создаем объект жанра, если по нему есть данные есть
+            Genre genre = Genre.builder().build();
+            Integer genreId = rs.getInt("genre_id");
+            if (rs.wasNull()) {
+                continue;
+            }
+
+            genre.setId(genreId);
+            genre.setName(rs.getString("genre_name"));
+            film.getGenres().add(genre);
         }
-        return data;
+        return film;
     }
 }

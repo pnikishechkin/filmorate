@@ -12,7 +12,7 @@ public interface UserRepository {
 
     Optional<User> getById(Integer id);
 
-    Set<User> getFriendsByUserId(Integer id);
+    List<User> getFriendsByUserId(Integer id);
 
     User addUser(User user);
 

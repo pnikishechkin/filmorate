@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
@@ -16,11 +14,8 @@ import java.util.*;
 @Repository
 public class UserDbRepository extends BaseDbRepository<User> implements UserRepository {
 
-    private final FilmDbRepository filmDbRepository;
-
     public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper, FilmDbRepository filmDbRepository) {
         super(jdbc, mapper);
-        this.filmDbRepository = filmDbRepository;
     }
 
     private static final String SQL_GET_ALL_USERS =
@@ -36,8 +31,9 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
             "INSERT INTO users (email, login, user_name, birthday) " +
                     "VALUES (:email, :login, :user_name, :birthday);";
 
-    private static final String SQL_GET_USER_FRIENDS_IDs =
-            "SELECT friend_id FROM users_friends WHERE user_id=:user_id;";
+    private static final String SQL_GET_USER_FRIENDS =
+            "SELECT * FROM users WHERE user_id IN " +
+                    "(SELECT friend_id FROM users_friends WHERE user_id=:user_id);";
 
     private static final String SQL_INSERT_USER_FRIEND =
             "INSERT INTO users_friends (user_id, friend_id) " +
@@ -49,12 +45,6 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     private static final String SQL_UPDATE_USER =
             "UPDATE users SET email=:email, login=:login, user_name=:user_name, " +
                     "birthday=:birthday WHERE user_id=:user_id;";
-/*
-* SELECT * FROM users WHERE user_id IN
-(SELECT uf1.friend_id FROM users_friends AS uf1
-                 INNER JOIN users_friends AS uf2
-                 ON uf1.FRIEND_ID = uf2.FRIEND_ID
-                 WHERE uf1.user_id=2 AND uf2.user_id=1);*/
 
     private static final String SQL_GET_COMMON_USER =
             "SELECT * FROM users WHERE user_id IN (SELECT uf1.friend_id FROM users_friends AS uf1 " +
@@ -70,26 +60,12 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     public Optional<User> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
         Optional<User> user = getOne(SQL_GET_USER_BY_ID, params);
-
-        user.ifPresent(u -> {
-            // Заполнение объекта с списком друзей
-            u.setFriends(this.getFriendsByUserId(u.getId()));
-            // Заполнение объекта с списком фильмов, которым пользователь поставил лайк
-            Set<Film> likeFilms = filmDbRepository.getLikeFilmsByUserId(user.get().getId());
-            u.setLikeFilms(likeFilms);
-        });
-
         return user;
     }
 
     @Override
-    public Set<User> getFriendsByUserId(Integer id) {
-        // Находим список идентификаторов друзей
-        Set<Integer> userIds = new HashSet<>(jdbc.query(SQL_GET_USER_FRIENDS_IDs, Map.of("user_id", id),
-                new SingleColumnRowMapper<>(Integer.class)));
-
-        // Возвращаем множество объектов пользователей, являющихся друзьями для запрашиваемого
-        return new LinkedHashSet<>(getMany(SQL_GET_USERS_BY_IDs, Map.of("ids", userIds)));
+    public List<User> getFriendsByUserId(Integer id) {
+        return getMany(SQL_GET_USER_FRIENDS, Map.of("user_id", id));
     }
 
     @Override
@@ -123,32 +99,6 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     public User updateUser(User user) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("user_id", user.getId());
-
-        /*
-        Требуется учитывать изменения у пользователей по лайкам и друзьям?
-        Могут ли они быть переданы сразу как объект json?
-
-        // Удаление связей пользователя с фильмами
-        jdbc.update(SQL_DELETE_USERS_FILMS_LIKES, params);
-
-        // Удаление записей пользователя с друзьями
-        jdbc.update(SQL_DELETE_USERS_FRIENDS, params);
-
-        // batch
-        // Добавить лайки к фильмам
-        for (Film film: user.getLikeFilms()) {
-            filmDbRepository.adduserLike(film.getId(), user.getId());
-        }
-
-        // batch
-        // Добавить записи друзей
-        for (User u: user.getFriends()) {
-            params = new MapSqlParameterSource();
-            params.addValue("user_id", user.getId());
-            params.addValue("friend_id", u.getId());
-            jdbc.update(SQL_INSERT_USER_FRIEND, params);
-        }
-         */
 
         // Обновить данные пользователя
         params = new MapSqlParameterSource();

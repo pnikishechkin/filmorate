@@ -28,6 +28,9 @@ public class GenreDbRepository extends BaseDbRepository<Genre> implements GenreR
     private static final String SQL_GET_GENRES_BY_ID =
             "select * from GENRES WHERE genre_id=:id;";
 
+    private static final String SQL_GET_GENRES_BY_IDs =
+            "select * from GENRES WHERE genre_id IN (:ids);";
+
     @Override
     public List<Genre> getAll() {
         return getMany(SQL_GET_ALL_GENRES);
@@ -54,4 +57,9 @@ public class GenreDbRepository extends BaseDbRepository<Genre> implements GenreR
                 new SingleColumnRowMapper<>(Integer.class)));
     }
 
+    public Set<Genre> getByIds(Set<Integer> genreIds) {
+        return new LinkedHashSet<>(jdbc.query(SQL_GET_GENRES_BY_IDs,
+                Map.of("ids", genreIds),
+                mapper));
+    }
 }

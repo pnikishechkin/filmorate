@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
 import java.time.LocalDate;
@@ -19,7 +18,6 @@ import java.util.Set;
 public class UserService {
 
     private final UserDbRepository userDbRepository;
-    private final FilmDbRepository filmDbRepository;
 
     public List<User> getUsers() {
         return userDbRepository.getAll();
@@ -48,11 +46,12 @@ public class UserService {
         return List.of(userDbRepository.getById(userId).get(), userDbRepository.getById(friendId).get());
     }
 
-    public Set<User> getFriends(Integer id) {
+    public List<User> getFriends(Integer id) {
         User user = userDbRepository.getById(id).orElseThrow(() -> new NotFoundException("Ошибка! Пользователя с " +
                 "заданным " +
                 "идентификатором не существует"));
-        return user.getFriends();
+
+        return userDbRepository.getFriendsByUserId(id);
     }
 
     private void checkUser(User user) {
