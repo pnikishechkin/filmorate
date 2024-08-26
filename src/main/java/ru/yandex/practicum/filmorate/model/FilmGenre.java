@@ -11,6 +11,6 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class FilmGenre {
-    private Integer film_id;
-    private Integer genre_id;
+    private Integer filmId;
+    private Integer genreId;
 }

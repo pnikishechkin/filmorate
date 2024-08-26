@@ -16,8 +16,8 @@ public class FilmGenreRowMapper implements RowMapper<FilmGenre> {
         ResultSetMetaData metaData = rs.getMetaData();
 
         return FilmGenre.builder()
-                .film_id(rs.getInt("film_id"))
-                .genre_id(rs.getInt("genre_id"))
+                .filmId(rs.getInt("film_id"))
+                .genreId(rs.getInt("genre_id"))
                 .build();
     }
 }

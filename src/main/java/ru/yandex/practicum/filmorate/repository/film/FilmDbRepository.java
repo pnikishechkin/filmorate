@@ -222,9 +222,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
         // Заполняем жанры для всех фильмов
         relation.forEach(fg -> {
-                    if (filmsMap.containsKey(fg.getFilm_id())) {
-                        filmsMap.get(fg.getFilm_id()).getGenres().add(
-                                genresMap.get(fg.getGenre_id()));
+                    if (filmsMap.containsKey(fg.getFilmId())) {
+                        filmsMap.get(fg.getFilmId()).getGenres().add(
+                                genresMap.get(fg.getGenreId()));
                     }
                 }
         );
