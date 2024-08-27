@@ -16,7 +16,7 @@ import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
-import ru.yandex.practicum.filmorate.repository.rating.RatingDbRepository;
+import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 
 import java.util.*;
 import java.util.function.Function;
@@ -31,7 +31,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private final FilmExtractor filmExtractor;
     private final FilmGenreRowMapper filmGenreRowMapper;
 
-    public FilmDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Film> mapper, GenreDbRepository genreDbRepository, RatingDbRepository ratingDbRepository, FilmExtractor filmExtractor, FilmGenreRowMapper filmGenreRowMapper) {
+    public FilmDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Film> mapper, GenreDbRepository genreDbRepository, MpaDbRepository mpaDbRepository, FilmExtractor filmExtractor, FilmGenreRowMapper filmGenreRowMapper) {
         super(jdbc, mapper);
         this.genreDbRepository = genreDbRepository;
         this.filmExtractor = filmExtractor;
@@ -39,19 +39,19 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     }
 
     private static final String SQL_GET_ALL_FILMS =
-            "SELECT * FROM films AS f LEFT JOIN ratings AS r ON f.rating_id = r.rating_id;";
+            "SELECT * FROM films AS f LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id;";
 
     private static final String SQL_GET_FILM_BY_ID_JOIN_GENRES =
             "SELECT * FROM films AS f " +
-                    "LEFT JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                    "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
                     "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
                     "LEFT JOIN genres as g ON g.genre_id = fg.genre_id " +
                     "WHERE f.film_id = :id " +
                     "ORDER BY genre_id;";
 
     private static final String SQL_INSERT_FILM =
-            "INSERT INTO films (rating_id, film_name, description, release_date, duration) " +
-                    "VALUES (:rating_id, :film_name, :description, :release_date, :duration);";
+            "INSERT INTO films (mpa_id, film_name, description, release_date, duration) " +
+                    "VALUES (:mpa_id, :film_name, :description, :release_date, :duration);";
 
     private static final String SQL_INSERT_FILMS_GENRES =
             "INSERT INTO films_genres (film_id, genre_id) " +
@@ -68,20 +68,20 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
             "DELETE FROM films WHERE film_id=:film_id";
 
     private static final String SQL_UPDATE_FILM =
-            "UPDATE films SET rating_id=:rating_id, film_name=:film_name, description=:description, " +
+            "UPDATE films SET mpa_id=:mpa_id, film_name=:film_name, description=:description, " +
                     "release_date=:release_date, duration=:duration WHERE film_id=:film_id;";
 
     private static final String SQL_GET_FILM_IDs_LIKE_USER =
             "SELECT film_id FROM users_films_likes WHERE user_id=:user_id;";
 
     private static final String SQL_GET_FILMS_BY_IDs =
-            "SELECT * FROM films AS f LEFT JOIN ratings AS r ON f.rating_id = r.rating_id WHERE f.film_id IN (:ids);";
+            "SELECT * FROM films AS f LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id WHERE f.film_id IN (:ids);";
 
     private static final String SQL_DELETE_USER_FILMS_LIKES =
             "DELETE FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
 
     private static final String SQL_GET_POPULAR_FILMS =
-            "SELECT * FROM films AS f LEFT JOIN ratings AS r ON f.rating_id = r.rating_id " +
+            "SELECT * FROM films AS f LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
                     "WHERE film_id IN " +
                     "(SELECT film_id FROM USERS_FILMS_LIKES GROUP BY film_id ORDER BY COUNT(film_id) DESC) " +
                     "LIMIT :count;";
@@ -114,7 +114,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource();
 
-        params.addValue("rating_id", film.getMpa().getId());
+        params.addValue("mpa_id", film.getMpa().getId());
         params.addValue("film_name", film.getName());
         params.addValue("description", film.getDescription());
         params.addValue("release_date", film.getReleaseDate());
@@ -126,7 +126,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         // Batch добавление связей фильма с жанрами
         addGenresToDb(film);
 
-        // Получение полного объекта фильма из базы (необходимо для полного наполнения объектов Rating и Genres)
+        // Получение полного объекта фильма из базы (необходимо для полного наполнения объектов Mpa и Genres)
         film = getById(film.getId()).orElseThrow(() -> new NotFoundException("Ошибка при добавлении фильма"));
         return film;
     }
@@ -153,7 +153,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
         params = new MapSqlParameterSource();
         params.addValue("film_id", film.getId());
-        params.addValue("rating_id", film.getMpa().getId());
+        params.addValue("mpa_id", film.getMpa().getId());
         params.addValue("film_name", film.getName());
         params.addValue("description", film.getDescription());
         params.addValue("release_date", film.getReleaseDate());
@@ -168,7 +168,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         // Batch добавление связей фильма с жанрами
         addGenresToDb(film);
 
-        // Получение обновленного полного объекта фильма из базы (необходимо для наполнения объектов Rating и Genres)
+        // Получение обновленного полного объекта фильма из базы (необходимо для наполнения объектов Mpa и Genres)
         return getById(film.getId()).get();
     }
 

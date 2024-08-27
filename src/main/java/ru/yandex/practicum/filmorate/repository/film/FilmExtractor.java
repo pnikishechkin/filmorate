@@ -31,8 +31,8 @@ public class FilmExtractor implements ResultSetExtractor<Film> {
                         .duration(rs.getInt("duration"))
                         .build();
 
-                film.setMpa(Mpa.builder().id(rs.getInt("rating_id"))
-                        .name(rs.getString("rating_name"))
+                film.setMpa(Mpa.builder().id(rs.getInt("mpa_id"))
+                        .name(rs.getString("mpa_name"))
                         .build());
 
                 film.setGenres(new LinkedHashSet<>());

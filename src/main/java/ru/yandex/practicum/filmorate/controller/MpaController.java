@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.RatingService;
+import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.List;
 
@@ -13,24 +13,24 @@ import java.util.List;
 @RequestMapping("/mpa")
 @Slf4j
 @RequiredArgsConstructor
-public class RatingController {
+public class MpaController {
 
-    private final RatingService ratingService;
+    private final MpaService mpaService;
 
     @GetMapping
     public List<Mpa> getRatings() {
-        return ratingService.getRatings();
+        return mpaService.getMpa();
     }
 
     @GetMapping("/{id}")
     public Mpa getRating(@PathVariable Integer id) {
-        return ratingService.getRatingById(id);
+        return mpaService.getRatingById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mpa addRating(@RequestBody Mpa rating) {
-        return ratingService.addRating(rating);
+        return mpaService.addRating(rating);
     }
 
 }

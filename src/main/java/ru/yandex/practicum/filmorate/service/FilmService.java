@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
-import ru.yandex.practicum.filmorate.repository.rating.RatingDbRepository;
+import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
 import java.time.LocalDate;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmDbRepository filmDbRepository;
-    private final RatingDbRepository ratingDbRepository;
+    private final MpaDbRepository mpaDbRepository;
     private final GenreDbRepository genreDbRepository;
     private final UserDbRepository userDbRepository;
 
@@ -38,7 +38,7 @@ public class FilmService {
 
     public Film addFilm(Film film) {
 
-        ratingDbRepository.getById(film.getMpa().getId()).orElseThrow(() ->
+        mpaDbRepository.getById(film.getMpa().getId()).orElseThrow(() ->
                 new ValidationException("Ошибка! Рейтинга с заданным идентификатором не существует"));
 
         checkGenres(film);
@@ -60,7 +60,7 @@ public class FilmService {
         filmDbRepository.getById(film.getId()).orElseThrow(() ->
                 new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует"));
 
-        ratingDbRepository.getById(film.getMpa().getId()).orElseThrow(() ->
+        mpaDbRepository.getById(film.getMpa().getId()).orElseThrow(() ->
                 new NotFoundException("Ошибка! Рейтинга с заданным идентификатором не существует"));
 
         checkGenres(film);

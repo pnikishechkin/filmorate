@@ -17,8 +17,8 @@ public class FilmRowMapper implements RowMapper<Film> {
         ResultSetMetaData metaData = rs.getMetaData();
 
         Mpa rating = Mpa.builder()
-                .id(rs.getInt("rating_id"))
-                .name(rs.getString("rating_name"))
+                .id(rs.getInt("mpa_id"))
+                .name(rs.getString("mpa_name"))
                 .build();
 
         return Film.builder()

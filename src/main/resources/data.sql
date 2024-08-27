@@ -1,20 +1,12 @@
-/*
-INSERT INTO "genres" VALUES (1, 'Комедия');
-
-INSERT INTO "films" ("film_id", "name", "description", "release_date", "duration")
-VALUES (1, 'Терминатор', 'Терминатор!', '1990-05-19', 50);
- */
-
-
-INSERT INTO ratings (rating_name)
+INSERT INTO mpa (mpa_name)
 VALUES ('G');
-INSERT INTO ratings (rating_name)
+INSERT INTO mpa (mpa_name)
 VALUES ('PG');
-INSERT INTO ratings (rating_name)
+INSERT INTO mpa (mpa_name)
 VALUES ('PG-13');
-INSERT INTO ratings (rating_name)
+INSERT INTO mpa (mpa_name)
 VALUES ('R');
-INSERT INTO ratings (rating_name)
+INSERT INTO mpa (mpa_name)
 VALUES ('NC-17');
 
 
