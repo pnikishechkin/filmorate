@@ -91,7 +91,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     @Override
     public List<Film> getAll() {
-        return this.getSomeFilms(SQL_GET_ALL_FILMS, Map.of());
+        return this.getFilms(SQL_GET_ALL_FILMS, Map.of());
     }
 
     @Override
@@ -202,10 +202,10 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     @Override
     public List<Film> getPopularFilms(Integer count) {
-        return this.getSomeFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count));
+        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count));
     }
 
-    private List<Film> getSomeFilms(String query, Map<String, Object> map) {
+    private List<Film> getFilms(String query, Map<String, Object> map) {
         // Получаем все фильмы с включенными данными рейтинга
         List<Film> films = jdbc.query(query, map, mapper);
         films.forEach(f -> f.setGenres(new LinkedHashSet<>()));
