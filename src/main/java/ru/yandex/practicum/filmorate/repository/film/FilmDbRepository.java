@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.repository.film;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
@@ -23,8 +21,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Repository
-@Primary
-@Qualifier("filmDbRepository")
 public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepository {
 
     private final GenreDbRepository genreDbRepository;

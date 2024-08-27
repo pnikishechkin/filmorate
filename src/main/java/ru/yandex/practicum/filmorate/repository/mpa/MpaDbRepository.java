@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
 @Repository
 public class MpaDbRepository extends BaseDbRepository<Mpa> implements MpaRepository {
 
@@ -44,8 +43,6 @@ public class MpaDbRepository extends BaseDbRepository<Mpa> implements MpaReposit
     public Mpa addRating(Mpa mpa) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource();
-
-        System.out.println(mpa.getName());
 
         params.addValue("mpa_name", mpa.getName());
 
