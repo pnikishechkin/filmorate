@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Сервисный класс для управления пользователями
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,6 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        this.checkUser(user);
         return userDbRepository.addUser(user);
     }
 
@@ -54,41 +54,13 @@ public class UserService {
         return userDbRepository.getFriendsByUserId(id);
     }
 
-    private void checkUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
-            log.error("Ошибка! Электронная почта не может быть пустой и должна содержать символ @");
-            throw new ValidationException("Ошибка! Электронная почта не может быть пустой и должна содержать символ @");
-        }
-        if (user.getLogin() == null || user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
-            log.error("Ошибка! Логин не может быть пустым и содержать пробелы");
-            throw new ValidationException("Ошибка! Логин не может быть пустым и содержать пробелы");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Ошибка! Дата рождения не может быть в будущем");
-            throw new ValidationException("Ошибка! Дата рождения не может быть в будущем");
-        }
-    }
-
     public User updateUser(User user) {
         log.debug("Изменение параметров пользователя с идентификатором {}", user.getId());
 
         if (userDbRepository.getById(user.getId()).isEmpty()) {
             throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
         }
-        /*
-        user.getFriends().forEach(fr -> {
-            if (userDbRepository.getById(fr.getId()).isEmpty()) {
-                throw new NotFoundException("Ошибка! Друга пользователя с заданным идентификатором не существует");
-            }
-        });
-        user.getLikeFilms().forEach(film -> {
-            if (filmDbRepository.getById(film.getId()).isEmpty()) {
-                throw new NotFoundException("Ошибка! Фильма (лайк пользователя) с заданным идентификатором не " +
-                        "существует");
-            }
-        });
-         */
-        this.checkUser(user);
+
         return userDbRepository.updateUser(user);
     }
 

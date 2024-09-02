@@ -11,6 +11,9 @@ import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.util.List;
 
+/**
+ * Контроллер для реализации API методов, связанных с жанрами фильмов
+ */
 @RestController
 @RequestMapping("/genres")
 @Slf4j

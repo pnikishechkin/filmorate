@@ -7,14 +7,16 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
-import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 
 import java.util.*;
 
+/**
+ * Репозиторий для управления пользователями
+ */
 @Repository
 public class UserDbRepository extends BaseDbRepository<User> implements UserRepository {
 
-    public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper, FilmDbRepository filmDbRepository) {
+    public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
     }
 
@@ -51,11 +53,20 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
                     "INNER JOIN users_friends AS uf2 ON uf1.FRIEND_ID = uf2.FRIEND_ID " +
                     "WHERE uf1.user_id=:id AND uf2.user_id=:other_id);";
 
+    /**
+     * Получить список пользователей
+     * @return список пользователей
+     */
     @Override
     public List<User> getAll() {
         return getMany(SQL_GET_ALL_USERS);
     }
 
+    /**
+     * Получить пользователя по идентификатору
+     * @param id идентификатор пользователя
+     * @return объект пользователя (опционально)
+     */
     @Override
     public Optional<User> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
@@ -63,11 +74,21 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         return user;
     }
 
+    /**
+     * Получить список друзей пользователя
+     * @param id идентификатор пользователя
+     * @return спсиок объектов друзей пользователя
+     */
     @Override
     public List<User> getFriendsByUserId(Integer id) {
         return getMany(SQL_GET_USER_FRIENDS, Map.of("user_id", id));
     }
 
+    /**
+     * Добавить нового пользователя
+     * @param user объект добавляемого пользователя
+     * @return объект добавленного пользователя
+     */
     @Override
     public User addUser(User user) {
         // Добавление записи в таблицу users
@@ -85,6 +106,11 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         return user;
     }
 
+    /**
+     * Добавить в друзья
+     * @param userId пользователь, кто хочет добавить в друзья
+     * @param friendId пользователь, кого надо добавить в друзья
+     */
     @Override
     public void addFriend(Integer userId, Integer friendId) {
         // Добавление записи в таблицу users
@@ -95,6 +121,11 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         jdbc.update(SQL_INSERT_USER_FRIEND, params);
     }
 
+    /**
+     * Обновить данные пользователя
+     * @param user объект изменяемого пользователя
+     * @return измененный пользователь
+     */
     @Override
     public User updateUser(User user) {
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -115,12 +146,23 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         return getById(user.getId()).get();
     }
 
+    /**
+     * Удалить из друзей
+     * @param userId идентификтор пользователя, кто удаляет из друзей
+     * @param friendId идентификатор пользователя, кого удаляют из друзей
+     */
     @Override
     public void deleteFriend(Integer userId, Integer friendId) {
         jdbc.update(SQL_DELETE_USER_FRIEND,
                 Map.of("user_id", userId, "friend_id", friendId));
     }
 
+    /**
+     * Получить список общих друзей между двумя пользователями
+     * @param id первый пользователь
+     * @param otherId второй пользователь
+     * @return множество с объектами пользователей, являющихся общими друзьями для заданных
+     */
     @Override
     public Set<User> getCommonFriends(Integer id, Integer otherId) {
         return new LinkedHashSet<>(getMany(SQL_GET_COMMON_USER,

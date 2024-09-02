@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Репозиторий для управления рейтингами фильмов
+ */
 @Repository
 public class MpaDbRepository extends BaseDbRepository<Mpa> implements MpaRepository {
 
@@ -28,17 +31,31 @@ public class MpaDbRepository extends BaseDbRepository<Mpa> implements MpaReposit
     private static final String SQL_INSERT_MPA =
             "INSERT INTO mpa (mpa_name) VALUES (:mpa_name);";
 
+    /**
+     * Получить список всех рейтингов фильмов
+     * @return список возможных рейтингов
+     */
     @Override
     public List<Mpa> getAll() {
         return getMany(SQL_GET_ALL_MPAs);
     }
 
+    /**
+     * Получить рейтинг фильма по идентификатору
+     * @param id идентификатор рейтинга
+     * @return объект рейтинга (опционально)
+     */
     @Override
     public Optional<Mpa> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
         return getOne(SQL_GET_MPA_BY_ID, params);
     }
 
+    /**
+     * Добавить рейтинг
+     * @param mpa объект рейтинга
+     * @return новый объект рейтинга
+     */
     @Override
     public Mpa addRating(Mpa mpa) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();

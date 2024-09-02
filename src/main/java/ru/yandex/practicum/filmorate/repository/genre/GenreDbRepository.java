@@ -9,6 +9,9 @@ import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 
 import java.util.*;
 
+/**
+ * Репозиторий для управления жанрами фильмов
+ */
 @Repository
 public class GenreDbRepository extends BaseDbRepository<Genre> implements GenreRepository {
     public GenreDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Genre> mapper) {
@@ -31,17 +34,34 @@ public class GenreDbRepository extends BaseDbRepository<Genre> implements GenreR
     private static final String SQL_GET_GENRES_BY_IDs =
             "select * from GENRES WHERE genre_id IN (:ids);";
 
+    /**
+     * Получить список всех жанров фильмов
+     *
+     * @return список жанров
+     */
     @Override
     public List<Genre> getAll() {
         return getMany(SQL_GET_ALL_GENRES);
     }
 
+    /**
+     * Получить жанр по идентификатору
+     *
+     * @param id идентификатор жанра
+     * @return объект жанра (опционально)
+     */
     @Override
     public Optional<Genre> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
         return getOne(SQL_GET_GENRES_BY_ID, params);
     }
 
+    /**
+     * Получить множество жанров по идентификатору фильма
+     *
+     * @param filmId идентификатор фильма
+     * @return множество жанров
+     */
     @Override
     public Set<Genre> getGenresByFilmId(Integer filmId) {
         Map<String, Object> params = new HashMap<>();
@@ -49,6 +69,12 @@ public class GenreDbRepository extends BaseDbRepository<Genre> implements GenreR
         return new LinkedHashSet<>(jdbc.query(SQL_GET_GENRES_BY_FILM_ID, params, mapper));
     }
 
+    /**
+     * Получить список идентификаторов жанров по идентификатору фильма
+     *
+     * @param filmId идентификатор фильма
+     * @return множество идентификаторов жанров
+     */
     @Override
     public Set<Integer> getGenresIdByFilmId(Integer filmId) {
         Map<String, Object> params = new HashMap<>();
@@ -57,6 +83,12 @@ public class GenreDbRepository extends BaseDbRepository<Genre> implements GenreR
                 new SingleColumnRowMapper<>(Integer.class)));
     }
 
+    /**
+     * Получить жанры по идентификаторам
+     *
+     * @param genreIds множество идентификаторов
+     * @return множество объектов жанров
+     */
     public Set<Genre> getByIds(Set<Integer> genreIds) {
         return new LinkedHashSet<>(jdbc.query(SQL_GET_GENRES_BY_IDs,
                 Map.of("ids", genreIds),

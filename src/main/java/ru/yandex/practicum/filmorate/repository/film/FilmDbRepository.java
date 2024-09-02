@@ -14,12 +14,14 @@ import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
-import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Репозиторий для управления фильмами
+ */
 @Repository
 public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepository {
 
@@ -27,7 +29,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private final FilmExtractor filmExtractor;
     private final FilmGenreRowMapper filmGenreRowMapper;
 
-    public FilmDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Film> mapper, GenreDbRepository genreDbRepository, MpaDbRepository mpaDbRepository, FilmExtractor filmExtractor, FilmGenreRowMapper filmGenreRowMapper) {
+    public FilmDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Film> mapper, GenreDbRepository genreDbRepository, FilmExtractor filmExtractor, FilmGenreRowMapper filmGenreRowMapper) {
         super(jdbc, mapper);
         this.genreDbRepository = genreDbRepository;
         this.filmExtractor = filmExtractor;
@@ -85,11 +87,20 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private static final String SQL_GET_FILMS_GENRES =
             "SELECT * FROM films_genres";
 
+    /**
+     * Получить все фильмы
+     * @return список всех фильмов
+     */
     @Override
     public List<Film> getAll() {
         return this.getFilms(SQL_GET_ALL_FILMS, Map.of());
     }
 
+    /**
+     * Получить фильм по идентификатору
+     * @param id идентификатор фильма
+     * @return опционально - объект фильма
+     */
     @Override
     public Optional<Film> getById(Integer id) {
         Map<String, Object> params = Map.of("id", id);
@@ -104,6 +115,11 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return film;
     }
 
+    /**
+     * Добавить новый фильм
+     * @param film объект добавляемого фильма
+     * @return объект добавленного фильма
+     */
     @Override
     public Film addFilm(Film film) {
         // Добавление записи в таблицу films
@@ -127,6 +143,11 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return film;
     }
 
+    /**
+     * Удалить фильм
+     * @param film удаляемый фильм
+     * @return флаг, был ли удален фильм
+     */
     @Override
     public Boolean deleteFilm(Film film) {
 
@@ -142,6 +163,11 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return (res == 1);
     }
 
+    /**
+     * Редактирование фильма
+     * @param film объект изменяемого фильма
+     * @return объект измененного фильма
+     */
     @Override
     public Film updateFilm(Film film) {
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -168,6 +194,11 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return getById(film.getId()).get();
     }
 
+    /**
+     * Добавить лайк от выбранного пользователя указанному фильму
+     * @param filmId идентификатор фильма
+     * @param userId идентификатор пользователя
+     */
     @Override
     public void adduserLike(Integer filmId, Integer userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -176,31 +207,50 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         jdbc.update(SQL_INSERT_USER_FILMS_LIKES, params);
     }
 
+    /**
+     * Удалить лайк выбранного пользователя указанному фильму
+     * @param filmId идентификатор фильма
+     * @param userId идентификатор пользователя
+     */
     @Override
     public void deleteUserLike(Integer filmId, Integer userId) {
         jdbc.update(SQL_DELETE_USER_FILMS_LIKES,
                 Map.of("film_id", filmId, "user_id", userId));
     }
 
+    /**
+     * Получить множество фильмов, которые лайкнул указанный пользователь
+     * @param userId идентификатор пользователя
+     * @return множество фильмов
+     */
     @Override
     public Set<Film> getLikeFilmsByUserId(Integer userId) {
         // Находим список идентификаторов фильмов, на которых есть лайк указанного пользователя
         Set<Integer> filmIds = new HashSet<>(jdbc.query(SQL_GET_FILM_IDs_LIKE_USER, Map.of("user_id", userId),
                 new SingleColumnRowMapper<>(Integer.class)));
 
-        System.out.println("start");
         List<Film> films = getMany(SQL_GET_FILMS_BY_IDs, Map.of("ids", filmIds));
-        System.out.println(films);
 
         // Возвращаем множество объектов фильмов, на которых есть лайк пользователя
         return new LinkedHashSet<>(films);
     }
 
+    /**
+     * Получить список популярных фильмов
+     * @param count количество выводимых фильмов
+     * @return список фильмов
+     */
     @Override
     public List<Film> getPopularFilms(Integer count) {
         return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count));
     }
 
+    /**
+     * Получить список фильмов по заданному запросу, в связке с жанрами
+     * @param query SQL запрос
+     * @param map параметры запроса
+     * @return список фильмов
+     */
     private List<Film> getFilms(String query, Map<String, Object> map) {
         // Получаем все фильмы с включенными данными рейтинга
         List<Film> films = jdbc.query(query, map, mapper);
@@ -229,9 +279,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     }
 
     /**
-     * Batch добавление связей фильма с жанрами в БД
+     * Добавление связей фильма с жанрами в БД (Batch)
      *
-     * @param film
+     * @param film объект фильма
      */
     private void addGenresToDb(Film film) {
 

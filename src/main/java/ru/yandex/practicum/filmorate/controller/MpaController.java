@@ -9,6 +9,9 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.List;
 
+/**
+ * Контроллер для реализации API методов, связанных с рейтингами фильмов
+ */
 @RestController
 @RequestMapping("/mpa")
 @Slf4j

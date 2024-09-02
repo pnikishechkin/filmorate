@@ -9,6 +9,9 @@ import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 
 import java.util.List;
 
+/**
+ * Сервисный класс для управления рейтингами фильмов
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

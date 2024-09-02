@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -12,14 +13,17 @@ import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Сервисный класс для управления фильмами
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Validated
 public class FilmService {
 
     private final FilmDbRepository filmDbRepository;
@@ -42,7 +46,6 @@ public class FilmService {
                 new ValidationException("Ошибка! Рейтинга с заданным идентификатором не существует"));
 
         checkGenres(film);
-        this.checkFilm(film);
         return filmDbRepository.addFilm(film);
     }
 
@@ -64,8 +67,6 @@ public class FilmService {
                 new NotFoundException("Ошибка! Рейтинга с заданным идентификатором не существует"));
 
         checkGenres(film);
-
-        this.checkFilm(film);
         return filmDbRepository.updateFilm(film);
     }
 
@@ -93,25 +94,6 @@ public class FilmService {
 
     public List<Film> getPopularFilms(Integer count) {
         return filmDbRepository.getPopularFilms(count);
-    }
-
-    private void checkFilm(Film film) {
-        if (film.getName() == null || film.getName().isEmpty()) {
-            log.error("Ошибка! Название фильма не может быть пустым");
-            throw new ValidationException("Ошибка! Название фильма не может быть пустым");
-        }
-        if (film.getDescription().length() > 200) {
-            log.error("Ошибка! Максимальная длина описания фильма — 200 символов");
-            throw new ValidationException("Ошибка! Максимальная длина описания фильма — 200 символов");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("Ошибка! Дата релиза фильма не может быть раньше 28 декабря 1895 года");
-            throw new ValidationException("Ошибка! Дата релиза фильма не может быть раньше 28 декабря 1895 года");
-        }
-        if (film.getDuration() < 0) {
-            log.error("Ошибка! Продолжительность фильма должна быть положительным числом");
-            throw new ValidationException("Ошибка! Продолжительность фильма должна быть положительным числом");
-        }
     }
 
     private void checkGenres(Film film) {

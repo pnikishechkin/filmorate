@@ -9,6 +9,9 @@ import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 
 import java.util.List;
 
+/**
+ * Сервисный класс для управления жанрами фильмов
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
