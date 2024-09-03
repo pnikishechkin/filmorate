@@ -78,11 +78,15 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private static final String SQL_DELETE_USER_FILMS_LIKES =
             "DELETE FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
 
-    private static final String SQL_GET_POPULAR_FILMS =
+    private static final String SQL_GET_POPULAR_FILMS = "SELECT * FROM films AS f LEFT JOIN mpa AS r " +
+            "ON f.mpa_id = r.mpa_id " +
+            "WHERE film_id IN " +
+            "(SELECT film_id FROM USERS_FILMS_LIKES GROUP BY film_id ORDER BY COUNT(film_id) DESC) " +
+            "UNION ALL " +
             "SELECT * FROM films AS f LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
-                    "WHERE film_id IN " +
-                    "(SELECT film_id FROM USERS_FILMS_LIKES GROUP BY film_id ORDER BY COUNT(film_id) DESC) " +
-                    "LIMIT :count;";
+            "WHERE film_id IN " +
+            "(SELECT film_id FROM films WHERE film_id NOT IN (SELECT film_id FROM USERS_FILMS_LIKES) ORDER BY " +
+            "film_id) LIMIT :count;";
 
     private static final String SQL_GET_FILMS_GENRES =
             "SELECT * FROM films_genres";
