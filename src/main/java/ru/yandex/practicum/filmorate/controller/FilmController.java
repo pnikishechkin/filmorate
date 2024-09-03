@@ -38,9 +38,9 @@ public class FilmController {
         return filmService.addFilm(film);
     }
 
-    @DeleteMapping
-    public Boolean deleteFilm(@RequestBody Film film) {
-        return filmService.deleteFilm(film);
+    @DeleteMapping("/{id}")
+    public Boolean deleteFilm(@PathVariable Integer id) {
+        return filmService.deleteFilm(id);
     }
 
     @PutMapping

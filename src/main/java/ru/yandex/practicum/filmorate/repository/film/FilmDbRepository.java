@@ -89,6 +89,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить все фильмы
+     *
      * @return список всех фильмов
      */
     @Override
@@ -98,6 +99,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить фильм по идентификатору
+     *
      * @param id идентификатор фильма
      * @return опционально - объект фильма
      */
@@ -117,6 +119,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Добавить новый фильм
+     *
      * @param film объект добавляемого фильма
      * @return объект добавленного фильма
      */
@@ -145,18 +148,17 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Удалить фильм
-     * @param film удаляемый фильм
+     *
+     * @param id идентификатор удаляемого фильма
      * @return флаг, был ли удален фильм
      */
     @Override
-    public Boolean deleteFilm(Film film) {
+    public Boolean deleteFilm(Integer id) {
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         params = new MapSqlParameterSource();
-        params.addValue("film_id", film.getId());
+        params.addValue("film_id", id);
 
-        // Удаление связей фильма с жанрами
-        jdbc.update(SQL_DELETE_FILMS_GENRES, params);
         // Удаление фильма
         int res = jdbc.update(SQL_DELETE_FILM, params);
 
@@ -165,6 +167,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Редактирование фильма
+     *
      * @param film объект изменяемого фильма
      * @return объект измененного фильма
      */
@@ -196,6 +199,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Добавить лайк от выбранного пользователя указанному фильму
+     *
      * @param filmId идентификатор фильма
      * @param userId идентификатор пользователя
      */
@@ -209,6 +213,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Удалить лайк выбранного пользователя указанному фильму
+     *
      * @param filmId идентификатор фильма
      * @param userId идентификатор пользователя
      */
@@ -220,6 +225,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить множество фильмов, которые лайкнул указанный пользователь
+     *
      * @param userId идентификатор пользователя
      * @return множество фильмов
      */
@@ -237,6 +243,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить список популярных фильмов
+     *
      * @param count количество выводимых фильмов
      * @return список фильмов
      */
@@ -247,8 +254,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить список фильмов по заданному запросу, в связке с жанрами
+     *
      * @param query SQL запрос
-     * @param map параметры запроса
+     * @param map   параметры запроса
      * @return список фильмов
      */
     private List<Film> getFilms(String query, Map<String, Object> map) {

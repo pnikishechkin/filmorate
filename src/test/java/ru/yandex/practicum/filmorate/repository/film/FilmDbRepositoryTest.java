@@ -182,4 +182,28 @@ class FilmDbRepositoryTest {
         Assertions.assertEquals(film2, films.get(1));
         Assertions.assertEquals(film3, films.get(2));
     }
+
+    @Test
+    @DisplayName("Удаление имеющегося в базе фильма")
+    void deleteExistFilm_FilmDeleted() {
+        // when
+        Boolean res = filmDbRepository.deleteFilm(FIRST_FILM_ID);
+
+        // then
+        Assertions.assertTrue(res);
+        Assertions.assertEquals(2, filmDbRepository.getAll().size());
+        Assertions.assertFalse(filmDbRepository.getAll().contains(getFirstFilm()));
+    }
+
+    @Test
+    @DisplayName("Удаление фильма, которого нет в базе")
+    void deleteNotExistFilm_ResultFalse() {
+        // when (идентификатор не существующего фильма)
+        Boolean res = filmDbRepository.deleteFilm(100);
+
+        // then
+        Assertions.assertFalse(res);
+        Assertions.assertEquals(3, filmDbRepository.getAll().size());
+    }
+
 }
