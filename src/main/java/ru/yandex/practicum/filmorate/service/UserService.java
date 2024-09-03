@@ -30,6 +30,7 @@ public class UserService {
     }
 
     public User addUser(User user) {
+        checkName(user);
         return userDbRepository.addUser(user);
     }
 
@@ -71,5 +72,11 @@ public class UserService {
     private void checkExistUser(Integer id) {
         userDbRepository.getById(id).orElseThrow(() ->
                 new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
+    }
+
+    private void checkName(User user) {
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
     }
 }
