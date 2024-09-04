@@ -49,12 +49,12 @@ public class FilmService {
         return filmDbRepository.addFilm(film);
     }
 
-    public Boolean deleteFilm(Film film) {
+    public Boolean deleteFilm(Integer id) {
 
-        filmDbRepository.getById(film.getId()).orElseThrow(() ->
+        filmDbRepository.getById(id).orElseThrow(() ->
                 new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует"));
 
-        return filmDbRepository.deleteFilm(film);
+        return filmDbRepository.deleteFilm(id);
     }
 
     public Film updateFilm(Film film) {

@@ -48,6 +48,9 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
             "UPDATE users SET email=:email, login=:login, user_name=:user_name, " +
                     "birthday=:birthday WHERE user_id=:user_id;";
 
+    private static final String SQL_DELETE_USER =
+            "DELETE FROM users WHERE user_id=:user_id";
+
     private static final String SQL_GET_COMMON_USER =
             "SELECT * FROM users WHERE user_id IN (SELECT uf1.friend_id FROM users_friends AS uf1 " +
                     "INNER JOIN users_friends AS uf2 ON uf1.FRIEND_ID = uf2.FRIEND_ID " +
@@ -55,6 +58,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список пользователей
+     *
      * @return список пользователей
      */
     @Override
@@ -64,6 +68,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить пользователя по идентификатору
+     *
      * @param id идентификатор пользователя
      * @return объект пользователя (опционально)
      */
@@ -76,6 +81,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список друзей пользователя
+     *
      * @param id идентификатор пользователя
      * @return спсиок объектов друзей пользователя
      */
@@ -86,6 +92,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Добавить нового пользователя
+     *
      * @param user объект добавляемого пользователя
      * @return объект добавленного пользователя
      */
@@ -108,7 +115,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Добавить в друзья
-     * @param userId пользователь, кто хочет добавить в друзья
+     *
+     * @param userId   пользователь, кто хочет добавить в друзья
      * @param friendId пользователь, кого надо добавить в друзья
      */
     @Override
@@ -123,6 +131,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Обновить данные пользователя
+     *
      * @param user объект изменяемого пользователя
      * @return измененный пользователь
      */
@@ -148,7 +157,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Удалить из друзей
-     * @param userId идентификтор пользователя, кто удаляет из друзей
+     *
+     * @param userId   идентификтор пользователя, кто удаляет из друзей
      * @param friendId идентификатор пользователя, кого удаляют из друзей
      */
     @Override
@@ -159,7 +169,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список общих друзей между двумя пользователями
-     * @param id первый пользователь
+     *
+     * @param id      первый пользователь
      * @param otherId второй пользователь
      * @return множество с объектами пользователей, являющихся общими друзьями для заданных
      */
@@ -167,5 +178,24 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     public Set<User> getCommonFriends(Integer id, Integer otherId) {
         return new LinkedHashSet<>(getMany(SQL_GET_COMMON_USER,
                 Map.of("id", id, "other_id", otherId)));
+    }
+
+    /**
+     * Удалить пользователя
+     *
+     * @param id идентификатор удаляемого пользователя
+     * @return флаг, был ли удален пользователь
+     */
+    @Override
+    public Boolean deleteUser(Integer id) {
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params = new MapSqlParameterSource();
+        params.addValue("user_id", id);
+
+        // Удаление фильма
+        int res = jdbc.update(SQL_DELETE_USER, params);
+
+        return (res == 1);
     }
 }

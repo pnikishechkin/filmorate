@@ -13,7 +13,7 @@ public interface FilmRepository {
 
     Film addFilm(Film film);
 
-    Boolean deleteFilm(Film film);
+    Boolean deleteFilm(Integer id);
 
     Film updateFilm(Film film);
 

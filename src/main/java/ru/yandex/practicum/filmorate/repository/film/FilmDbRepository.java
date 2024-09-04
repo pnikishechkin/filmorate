@@ -78,17 +78,22 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private static final String SQL_DELETE_USER_FILMS_LIKES =
             "DELETE FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
 
-    private static final String SQL_GET_POPULAR_FILMS =
+    private static final String SQL_GET_POPULAR_FILMS = "SELECT * FROM films AS f LEFT JOIN mpa AS r " +
+            "ON f.mpa_id = r.mpa_id " +
+            "WHERE film_id IN " +
+            "(SELECT film_id FROM USERS_FILMS_LIKES GROUP BY film_id ORDER BY COUNT(film_id) DESC) " +
+            "UNION ALL " +
             "SELECT * FROM films AS f LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
-                    "WHERE film_id IN " +
-                    "(SELECT film_id FROM USERS_FILMS_LIKES GROUP BY film_id ORDER BY COUNT(film_id) DESC) " +
-                    "LIMIT :count;";
+            "WHERE film_id IN " +
+            "(SELECT film_id FROM films WHERE film_id NOT IN (SELECT film_id FROM USERS_FILMS_LIKES) ORDER BY " +
+            "film_id) LIMIT :count;";
 
     private static final String SQL_GET_FILMS_GENRES =
             "SELECT * FROM films_genres";
 
     /**
      * Получить все фильмы
+     *
      * @return список всех фильмов
      */
     @Override
@@ -98,6 +103,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить фильм по идентификатору
+     *
      * @param id идентификатор фильма
      * @return опционально - объект фильма
      */
@@ -117,6 +123,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Добавить новый фильм
+     *
      * @param film объект добавляемого фильма
      * @return объект добавленного фильма
      */
@@ -145,18 +152,17 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Удалить фильм
-     * @param film удаляемый фильм
+     *
+     * @param id идентификатор удаляемого фильма
      * @return флаг, был ли удален фильм
      */
     @Override
-    public Boolean deleteFilm(Film film) {
+    public Boolean deleteFilm(Integer id) {
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         params = new MapSqlParameterSource();
-        params.addValue("film_id", film.getId());
+        params.addValue("film_id", id);
 
-        // Удаление связей фильма с жанрами
-        jdbc.update(SQL_DELETE_FILMS_GENRES, params);
         // Удаление фильма
         int res = jdbc.update(SQL_DELETE_FILM, params);
 
@@ -165,6 +171,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Редактирование фильма
+     *
      * @param film объект изменяемого фильма
      * @return объект измененного фильма
      */
@@ -196,6 +203,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Добавить лайк от выбранного пользователя указанному фильму
+     *
      * @param filmId идентификатор фильма
      * @param userId идентификатор пользователя
      */
@@ -209,6 +217,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Удалить лайк выбранного пользователя указанному фильму
+     *
      * @param filmId идентификатор фильма
      * @param userId идентификатор пользователя
      */
@@ -220,6 +229,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить множество фильмов, которые лайкнул указанный пользователь
+     *
      * @param userId идентификатор пользователя
      * @return множество фильмов
      */
@@ -237,6 +247,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить список популярных фильмов
+     *
      * @param count количество выводимых фильмов
      * @return список фильмов
      */
@@ -247,8 +258,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить список фильмов по заданному запросу, в связке с жанрами
+     *
      * @param query SQL запрос
-     * @param map параметры запроса
+     * @param map   параметры запроса
      * @return список фильмов
      */
     private List<Film> getFilms(String query, Map<String, Object> map) {
