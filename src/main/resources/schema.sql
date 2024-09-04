@@ -8,6 +8,8 @@ DROP TABLE IF EXISTS directors CASCADE;
 DROP TABLE IF EXISTS film_directors CASCADE;
 DROP TABLE IF EXISTS users_friends CASCADE;
 DROP TABLE IF EXISTS users_films_likes CASCADE;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS reviews_likes CASCADE;
 
 CREATE TABLE IF NOT EXISTS genres
 (
@@ -76,4 +78,22 @@ CREATE TABLE IF NOT EXISTS users_films_likes
     film_id INT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
     PRIMARY KEY (user_id,
                  film_id)
+);
+
+CREATE TABLE IF NOT EXISTS reviews
+(
+    review_id    INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    film_id      INT     NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    user_id      INT     NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    content      VARCHAR NOT NULL,
+    is_positive     BOOL NOT NULL,
+    CONSTRAINT unique_film_user UNIQUE (film_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS reviews_likes
+(
+    review_id    INT     NOT NULL REFERENCES reviews (review_id) ON DELETE CASCADE,
+    user_id      INT     NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    is_useful    BOOL NOT NULL,
+    PRIMARY KEY (review_id, user_id)
 );
