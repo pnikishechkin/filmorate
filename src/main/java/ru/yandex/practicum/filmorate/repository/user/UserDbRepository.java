@@ -55,6 +55,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список пользователей
+     *
      * @return список пользователей
      */
     @Override
@@ -64,6 +65,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить пользователя по идентификатору
+     *
      * @param id идентификатор пользователя
      * @return объект пользователя (опционально)
      */
@@ -76,6 +78,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список друзей пользователя
+     *
      * @param id идентификатор пользователя
      * @return спсиок объектов друзей пользователя
      */
@@ -86,6 +89,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Добавить нового пользователя
+     *
      * @param user объект добавляемого пользователя
      * @return объект добавленного пользователя
      */
@@ -108,7 +112,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Добавить в друзья
-     * @param userId пользователь, кто хочет добавить в друзья
+     *
+     * @param userId   пользователь, кто хочет добавить в друзья
      * @param friendId пользователь, кого надо добавить в друзья
      */
     @Override
@@ -123,6 +128,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Обновить данные пользователя
+     *
      * @param user объект изменяемого пользователя
      * @return измененный пользователь
      */
@@ -148,7 +154,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Удалить из друзей
-     * @param userId идентификтор пользователя, кто удаляет из друзей
+     *
+     * @param userId   идентификтор пользователя, кто удаляет из друзей
      * @param friendId идентификатор пользователя, кого удаляют из друзей
      */
     @Override
@@ -159,7 +166,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список общих друзей между двумя пользователями
-     * @param id первый пользователь
+     *
+     * @param id      первый пользователь
      * @param otherId второй пользователь
      * @return множество с объектами пользователей, являющихся общими друзьями для заданных
      */

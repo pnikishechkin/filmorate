@@ -30,6 +30,7 @@ public class FilmService {
     private final MpaDbRepository mpaDbRepository;
     private final GenreDbRepository genreDbRepository;
     private final UserDbRepository userDbRepository;
+    private final DirectorService directorService;
 
     public List<Film> getFilms() {
         return filmDbRepository.getAll();
@@ -94,6 +95,15 @@ public class FilmService {
 
     public List<Film> getPopularFilms(Integer count) {
         return filmDbRepository.getPopularFilms(count);
+    }
+
+    public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
+        if (!sortBy.equals("year") && !sortBy.equals("likes")) {
+            log.error("Переданы некорректные параметры запроса.");
+            throw new NotFoundException("Ошибка! Параметры запроса некорректны.");
+        }
+        directorService.getDirectorById(directorId);
+        return filmDbRepository.getFilmsByDirector(directorId, sortBy);
     }
 
     private void checkGenres(Film film) {
