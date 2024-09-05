@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.MpaService;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequestMapping("/mpa")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class MpaController {
 
     private final MpaService mpaService;
@@ -36,5 +38,4 @@ public class MpaController {
     public Mpa addRating(@RequestBody Mpa rating) {
         return mpaService.addRating(rating);
     }
-
 }

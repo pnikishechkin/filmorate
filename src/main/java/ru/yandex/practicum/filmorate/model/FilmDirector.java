@@ -6,16 +6,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * Связь фильм-жанр
- */
 @Data
 @Builder
 @EqualsAndHashCode
 @ToString
-public class FilmGenre {
+public class FilmDirector {
     @NotNull
     private Integer filmId;
     @NotNull
-    private Integer genreId;
+    private Integer directorId;
 }
