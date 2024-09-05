@@ -46,5 +46,4 @@ public class DirectorController {
     public Director updateDirector(@Valid @RequestBody Director director) {
         return directorService.updateDirector(director);
     }
-
 }
