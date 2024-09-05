@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.repository.film;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -36,18 +37,28 @@ public class FilmExtractor implements ResultSetExtractor<Film> {
                         .build());
 
                 film.setGenres(new LinkedHashSet<>());
+                film.setDirectors(new LinkedHashSet<>());
             }
 
             // Создаем объект жанра, если по нему есть данные есть
             Genre genre = Genre.builder().build();
             Integer genreId = rs.getInt("genre_id");
-            if (rs.wasNull()) {
-                continue;
+
+            if (!rs.wasNull()) {
+                genre.setId(genreId);
+                genre.setName(rs.getString("genre_name"));
+                film.getGenres().add(genre);
             }
 
-            genre.setId(genreId);
-            genre.setName(rs.getString("genre_name"));
-            film.getGenres().add(genre);
+            Director director = Director.builder().build();
+            Integer directorId = rs.getInt("director_id");
+            System.out.println(directorId);
+
+            if (!rs.wasNull()) {
+                director.setId(directorId);
+                director.setName(rs.getString("director_name"));
+                film.getDirectors().add(director);
+            }
         }
         return film;
     }

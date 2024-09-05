@@ -33,6 +33,7 @@ public class MpaDbRepository extends BaseDbRepository<Mpa> implements MpaReposit
 
     /**
      * Получить список всех рейтингов фильмов
+     *
      * @return список возможных рейтингов
      */
     @Override
@@ -42,6 +43,7 @@ public class MpaDbRepository extends BaseDbRepository<Mpa> implements MpaReposit
 
     /**
      * Получить рейтинг фильма по идентификатору
+     *
      * @param id идентификатор рейтинга
      * @return объект рейтинга (опционально)
      */
@@ -53,6 +55,7 @@ public class MpaDbRepository extends BaseDbRepository<Mpa> implements MpaReposit
 
     /**
      * Добавить рейтинг
+     *
      * @param mpa объект рейтинга
      * @return новый объект рейтинга
      */

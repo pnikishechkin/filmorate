@@ -24,4 +24,6 @@ public interface FilmRepository {
     Set<Film> getLikeFilmsByUserId(Integer userId);
 
     List<Film> getPopularFilms(Integer count);
+
+    List<Film> getFilmsByDirector(Integer directorId, String sortBy);
 }
