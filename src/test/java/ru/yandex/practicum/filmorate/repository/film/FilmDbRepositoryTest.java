@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.repository.director.DirectorDbRepository;
+import ru.yandex.practicum.filmorate.repository.director.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreRowMapper;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
@@ -21,7 +23,8 @@ import java.util.Set;
 
 @JdbcTest
 @Import({FilmDbRepository.class, FilmExtractor.class, FilmGenreRowMapper.class, FilmRowMapper.class,
-        GenreDbRepository.class, GenreRowMapper.class, MpaDbRepository.class, MpaRowMapper.class})
+        GenreDbRepository.class, GenreRowMapper.class, MpaDbRepository.class, MpaRowMapper.class,
+        DirectorDbRepository.class, DirectorRowMapper.class, FilmDirectorRowMapper.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DisplayName("FilmDbRepositoryTest")
 class FilmDbRepositoryTest {
