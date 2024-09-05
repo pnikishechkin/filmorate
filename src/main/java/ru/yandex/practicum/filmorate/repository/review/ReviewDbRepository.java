@@ -33,18 +33,23 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
                     "VALUES (:content, :is_positive, :film_id, :user_id);";
 
     private static final String SQL_GET_REVIEW_BASE =
-            "SELECT pos.review_id, pos.content, pos.film_id, pos.user_id, pos.is_positive, " +
-                    "(pos.positive - neg.negative) AS useful FROM " +
-                    "(SELECT r.REVIEW_ID, r.content, r.film_id, r.is_positive, r.user_id, COUNT(rl.IS_USEFUL) AS " +
-                    "positive FROM REVIEWS r LEFT JOIN REVIEWS_LIKES rl ON r.review_id = rl.REVIEW_ID " +
-                    "WHERE rl.IS_USEFUL = TRUE OR rl.IS_USEFUL IS NULL " +
-                    "GROUP BY r.REVIEW_ID) pos " +
+            "SELECT pos.review_id, pos.content, pos.film_id, pos.user_id, pos.is_positive, (pos.positive - neg.negative)" +
+                    " AS useful FROM " +
+                    "(SELECT r.review_id, r.content, r.film_id, r.user_id, r.is_positive, COUNT(pos.review_id) " +
+                    "AS positive FROM REVIEWS r " +
                     "LEFT JOIN " +
-                    "(SELECT r.REVIEW_ID, COUNT(rl.IS_USEFUL) AS negative " +
-                    "FROM REVIEWS r LEFT JOIN REVIEWS_LIKES rl ON r.review_id = rl.REVIEW_ID " +
-                    "WHERE rl.IS_USEFUL = FALSE OR rl.IS_USEFUL IS NULL " +
-                    "GROUP BY r.REVIEW_ID) neg " +
-                    "ON pos.REVIEW_ID = neg.review_id ";
+                    "(SELECT rl.review_id, rl.is_useful FROM REVIEWS_LIKES rl " +
+                    "WHERE rl.IS_USEFUL = TRUE) pos " +
+                    "ON r.REVIEW_ID = pos.review_id " +
+                    "GROUP BY r.review_id) pos " +
+                    "JOIN " +
+                    "(SELECT r.review_id, r.content, r.film_id, r.user_id, r.is_positive, COUNT(neg.review_id) AS negative FROM REVIEWS r " +
+                    "LEFT JOIN " +
+                    "(SELECT rl.review_id, rl.is_useful FROM REVIEWS_LIKES rl " +
+                    "WHERE rl.IS_USEFUL = FALSE) neg " +
+                    "ON r.REVIEW_ID = neg.review_id " +
+                    "GROUP BY r.review_id) neg " +
+                    "ON pos.review_id = neg.review_id ";
 
     private static final String SQL_GET_REVIEW_BY_IDs = SQL_GET_REVIEW_BASE +
             "WHERE pos.review_id IN (:ids);";
