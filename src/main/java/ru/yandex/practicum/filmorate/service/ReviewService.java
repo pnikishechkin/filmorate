@@ -28,7 +28,6 @@ public class ReviewService {
     public Review addReview(Review review) {
         checkFilmExist(review.getFilmId());
         checkUserExist(review.getUserId());
-        checkReviewFilmUserExist(review.getFilmId(), review.getUserId());
         return reviewDbRepository.addReview(review);
     }
 
@@ -91,6 +90,4 @@ public class ReviewService {
                 () -> new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует"));
     }
 
-    private void checkReviewFilmUserExist(Integer filmId, Integer userId) {
-    }
 }
