@@ -158,10 +158,6 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
         System.out.println("params set update");
         System.out.println(review);
 
-//        private static final String SQL_UPDATE_REVIEW =
-//                "UPDATE reviews SET film_id=:film_id, user_id=:user_id, content=:content, is_positive=:is_positive " +
-//                        "WHERE review_id=:review_id;";
-
         // Обновление отзыва
         jdbc.update(SQL_UPDATE_REVIEW, params);
 
