@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Контроллер для реализации API методов, связанных с фильмами
@@ -34,6 +35,11 @@ public class FilmController {
     @GetMapping("/{id}")
     public Film getFilm(@PathVariable @Positive Integer id) {
         return filmService.getFilmById(id);
+    }
+
+    @GetMapping("/common")
+    public Set<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 
     @PostMapping

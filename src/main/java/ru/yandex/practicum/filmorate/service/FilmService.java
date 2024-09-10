@@ -97,6 +97,7 @@ public class FilmService {
         return filmDbRepository.getPopularFilms(count);
     }
 
+
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         if (!sortBy.equals("year") && !sortBy.equals("likes")) {
             log.error("Переданы некорректные параметры запроса.");
@@ -104,6 +105,12 @@ public class FilmService {
         }
         directorService.getDirectorById(directorId);
         return filmDbRepository.getFilmsByDirector(directorId, sortBy);
+    }
+
+    public Set<Film> getCommonFilms(Integer userId, Integer friendId) {
+        Set<Film> userFilms = filmDbRepository.getLikeFilmsByUserId(userId);
+        userFilms.retainAll(filmDbRepository.getLikeFilmsByUserId(friendId));
+        return userFilms;
     }
 
     private void checkGenres(Film film) {
