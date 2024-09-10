@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -89,6 +90,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить все фильмы
+     *
      * @return список всех фильмов
      */
     @Override
@@ -98,6 +100,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить фильм по идентификатору
+     *
      * @param id идентификатор фильма
      * @return опционально - объект фильма
      */
@@ -117,6 +120,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Добавить новый фильм
+     *
      * @param film объект добавляемого фильма
      * @return объект добавленного фильма
      */
@@ -145,6 +149,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Удалить фильм
+     *
      * @param film удаляемый фильм
      * @return флаг, был ли удален фильм
      */
@@ -165,6 +170,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Редактирование фильма
+     *
      * @param film объект изменяемого фильма
      * @return объект измененного фильма
      */
@@ -196,6 +202,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Добавить лайк от выбранного пользователя указанному фильму
+     *
      * @param filmId идентификатор фильма
      * @param userId идентификатор пользователя
      */
@@ -209,6 +216,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Удалить лайк выбранного пользователя указанному фильму
+     *
      * @param filmId идентификатор фильма
      * @param userId идентификатор пользователя
      */
@@ -220,6 +228,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить множество фильмов, которые лайкнул указанный пользователь
+     *
      * @param userId идентификатор пользователя
      * @return множество фильмов
      */
@@ -237,18 +246,20 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     /**
      * Получить список популярных фильмов
+     *
      * @param count количество выводимых фильмов
      * @return список фильмов
      */
     @Override
-    public List<Film> getPopularFilms(Integer count) {
-        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count));
+    public List<Film> getPopularFilms(Integer count, Integer id, LocalDate releaseDate) {
+        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count, "id", id, "releaseDate", releaseDate));
     }
 
     /**
      * Получить список фильмов по заданному запросу, в связке с жанрами
+     *
      * @param query SQL запрос
-     * @param map параметры запроса
+     * @param map   параметры запроса
      * @return список фильмов
      */
     private List<Film> getFilms(String query, Map<String, Object> map) {

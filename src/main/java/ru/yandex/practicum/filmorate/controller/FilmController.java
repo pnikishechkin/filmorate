@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -61,8 +62,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopular(@RequestParam(value = "count", defaultValue = "10") Integer count) {
-        return filmService.getPopularFilms(count);
+    public Collection<Film> getPopular(@RequestParam(value = "count", defaultValue = "10") Integer count,
+                                       @RequestParam(value = "id", defaultValue = "1") Integer id,
+                                       @RequestParam(value = "releaseDate", defaultValue = "1999") LocalDate releaseDate) {
+        return filmService.getPopularFilms(count, id, releaseDate);
     }
 
 }

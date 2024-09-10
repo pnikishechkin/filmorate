@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -92,8 +93,8 @@ public class FilmService {
         filmDbRepository.deleteUserLike(filmId, userId);
     }
 
-    public List<Film> getPopularFilms(Integer count) {
-        return filmDbRepository.getPopularFilms(count);
+    public List<Film> getPopularFilms(Integer count, Integer id, LocalDate releaseDate) {
+        return filmDbRepository.getPopularFilms(count, id, releaseDate);
     }
 
     private void checkGenres(Film film) {
