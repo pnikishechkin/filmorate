@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS directors CASCADE;
 DROP TABLE IF EXISTS film_directors CASCADE;
 DROP TABLE IF EXISTS users_friends CASCADE;
 DROP TABLE IF EXISTS users_films_likes CASCADE;
+DROP TABLE IF EXISTS likes CASCADE;
 DROP TABLE IF EXISTS reviews CASCADE;
 DROP TABLE IF EXISTS reviews_likes CASCADE;
 
@@ -78,6 +79,14 @@ CREATE TABLE IF NOT EXISTS users_films_likes
     film_id INT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
     PRIMARY KEY (user_id,
                  film_id)
+);
+
+CREATE TABLE IF NOT EXISTS likes
+(
+    film_id INT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    user_id INT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id,
+                 user_id)
 );
 
 CREATE TABLE IF NOT EXISTS reviews

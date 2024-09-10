@@ -102,20 +102,35 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private static final String SQL_INSERT_FILM_DIRECTORS =
             "INSERT INTO film_directors (film_id, director_id) VALUES (:film_id, :director_id); ";
 
-    private static final String SQL_GET_POPULAR_FILMS = "SELECT * FROM films AS f LEFT JOIN mpa AS r " +
-            "ON f.mpa_id = r.mpa_id " +
-            "WHERE film_id IN " +
-            "(SELECT film_id FROM USERS_FILMS_LIKES GROUP BY film_id ORDER BY COUNT(film_id) DESC) " +
-            "UNION ALL " +
-            "SELECT * FROM films AS f LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
-            "WHERE film_id IN " +
-            "(SELECT film_id FROM films WHERE film_id NOT IN (SELECT film_id FROM USERS_FILMS_LIKES) ORDER BY " +
-            "film_id) LIMIT :count;";
+    private static final String SQL_GET_POPULAR_FILMS =
+            "SELECT * FROM films AS f LEFT JOIN mpa AS r " +
+                    "ON f.mpa_id = r.mpa_id " +
+                    "WHERE film_id IN " +
+                    "(SELECT film_id FROM USERS_FILMS_LIKES GROUP BY film_id ORDER BY COUNT(film_id) DESC) " +
+                    "UNION ALL " +
+                    "SELECT * FROM films AS f LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
+                    "WHERE film_id IN " +
+                    "(SELECT film_id FROM films WHERE film_id NOT IN (SELECT film_id FROM USERS_FILMS_LIKES) ORDER BY " +
+                    "film_id) LIMIT :count;";
 
     private static final String SQL_GET_FILMS_GENRES =
             "SELECT * FROM films_genres";
     private static final String SQL_GET_FILM_DIRECTORS =
             "SELECT * FROM film_directors";
+
+    private static final String SQL_FILM_SEARCH =
+            "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.mpa_name, " +
+                    "fg.genre_id, g.genre_name, " +
+                    "fd.director_id, d.director_name, " +
+                    "COUNT(DISTINCT l.user_id) AS like_count " +
+                    "FROM films AS f " +
+                    "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                    "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                    "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                    "LEFT JOIN film_directors AS fd ON f.film_id = fd.film_id " +
+                    "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                    "LEFT JOIN likes AS l ON f.film_id = l.film_id ";
 
     /**
      * Получить все фильмы
@@ -295,6 +310,27 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return this.getFilms(str, Map.of("director_id", directorId));
     }
 
+    @Override
+    public List<Film> searchFilm(String query, String by) {
+        String group = "GROUP BY f.film_id, fg.genre_id, fd.director_id " +
+                "ORDER BY like_count DESC; ";
+        String sql;
+        if ("director".equals(by)) {
+            sql = "WHERE d.director_name LIKE :param ";
+        } else if ("title".equals(by)) {
+            sql = "WHERE f.film_name LIKE :param ";
+        } else if ("director,title".equals(by) || "title,director".equals(by)) {
+            sql = "WHERE f.film_name LIKE :param OR d.director_name LIKE :param ";
+        } else {
+            throw new IllegalArgumentException("Неверное значение параметра 'by': " + by);
+        }
+
+        String result = SQL_FILM_SEARCH + sql + group;
+        String param = "%" + query + "%";
+
+        return this.getFilms(result, Map.of("param", param));
+    }
+
     /**
      * Получить список фильмов по заданному запросу, в связке с жанрами
      *
@@ -326,7 +362,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
                     }
                 }
         );
-
 
         // Получаем список всех режиссеров
         List<Director> directors = directorDbRepository.getAll();
