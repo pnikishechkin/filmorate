@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -97,6 +98,7 @@ public class FilmService {
         return filmDbRepository.getPopularFilms(count);
     }
 
+
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         if (!sortBy.equals("year") && !sortBy.equals("likes")) {
             log.error("Переданы некорректные параметры запроса.");
@@ -104,6 +106,12 @@ public class FilmService {
         }
         directorService.getDirectorById(directorId);
         return filmDbRepository.getFilmsByDirector(directorId, sortBy);
+    }
+
+    public Set<Film> getCommonFilms(Integer userId, Integer friendId) {
+        Set<Film> userFilms = filmDbRepository.getLikeFilmsByUserId(userId);
+        userFilms.retainAll(filmDbRepository.getLikeFilmsByUserId(friendId));
+        return userFilms;
     }
 
     private void checkGenres(Film film) {

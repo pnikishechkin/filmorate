@@ -267,7 +267,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         Set<Integer> filmIds = new HashSet<>(jdbc.query(SQL_GET_FILM_IDs_LIKE_USER, Map.of("user_id", userId),
                 new SingleColumnRowMapper<>(Integer.class)));
 
-        List<Film> films = getMany(SQL_GET_FILMS_BY_IDs, Map.of("ids", filmIds));
+        List<Film> films = getFilms(SQL_GET_FILMS_BY_IDs, Map.of("ids", filmIds));
 
         // Возвращаем множество объектов фильмов, на которых есть лайк пользователя
         return new LinkedHashSet<>(films);
