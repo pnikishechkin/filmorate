@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 
@@ -29,7 +30,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private final FilmExtractor filmExtractor;
     private final FilmGenreRowMapper filmGenreRowMapper;
 
-    public FilmDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Film> mapper, GenreDbRepository genreDbRepository, FilmExtractor filmExtractor, FilmGenreRowMapper filmGenreRowMapper) {
+
+    public FilmDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Film> mapper, GenreDbRepository genreDbRepository,
+                            FilmExtractor filmExtractor, FilmGenreRowMapper filmGenreRowMapper) {
         super(jdbc, mapper);
         this.genreDbRepository = genreDbRepository;
         this.filmExtractor = filmExtractor;

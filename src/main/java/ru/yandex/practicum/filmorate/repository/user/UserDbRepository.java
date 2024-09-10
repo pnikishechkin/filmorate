@@ -6,9 +6,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Репозиторий для управления пользователями
@@ -167,5 +169,43 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     public Set<User> getCommonFriends(Integer id, Integer otherId) {
         return new LinkedHashSet<>(getMany(SQL_GET_COMMON_USER,
                 Map.of("id", id, "other_id", otherId)));
+    }
+    @Override
+    public List<Long> getUserFilm(Long uderId) {
+        String sql = "SELECT film_id FROM films_likes WHERE user_id = ?";
+        return jdbc.query(sql, (rs, rowNum) -> rs.getLong("film_id"));
+    }
+
+    @Override
+    public Set<Film> getReccomend(Long userId) {
+        Map<Long, List<Long>> filmForUser = new HashMap<>();
+        List<User> users = userService.getUsers();
+        for (User user : users) {
+            filmForUser.put(user.getId(), userService.getUserFilm(user.getId()));
+        }
+        long maxCount = 0;
+        Set<Long> overlap = new HashSet<>();
+        for (Long id : filmForUser.keySet()) {
+            if (id == userId) continue;
+
+            long numberOfOverlap = filmForUser.get(id).stream()
+                    .filter(filmId -> filmForUser.get(userId).contains(filmId)).count();
+
+            if (numberOfOverlap == maxCount & numberOfOverlap != 0) {
+                overlap.add(id);
+            }
+
+            if (numberOfOverlap > maxCount) {
+                maxCount = numberOfOverlap;
+                overlap = new HashSet<>();
+                overlap.add(id);
+            }
+        }
+
+        if (maxCount == 0) return new HashSet<>();
+        else return overlap.stream().flatMap(idUser -> userService.getUserFilm(idUser).stream())
+                .filter(filmId -> !filmForUser.get(userId).contains(filmId))
+                .map(filmId -> filmService.getFilmById((filmId))
+                        .collect(Collectors.toSet());
     }
 }

@@ -35,7 +35,7 @@ public class FilmService {
         return filmDbRepository.getAll();
     }
 
-    public Film getFilmById(Integer id) {
+    public Film getFilmById(Long id) {
         return filmDbRepository.getById(id).orElseThrow(() -> new NotFoundException("Ошибка! Фильма с заданным " +
                 "идентификатором не существует"));
     }
