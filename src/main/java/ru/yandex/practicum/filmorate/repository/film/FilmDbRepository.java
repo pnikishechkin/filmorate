@@ -10,7 +10,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.director.DirectorDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
