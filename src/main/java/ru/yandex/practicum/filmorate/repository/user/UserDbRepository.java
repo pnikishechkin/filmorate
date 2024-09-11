@@ -229,7 +229,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         }
 
         System.out.println(overlap);
-        return null;
+        return null; // null
+
 //        if (maxCount == 0)
 //            return new HashSet<>();
 //        else
