@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
@@ -20,6 +21,7 @@ import java.util.Set;
 public class UserService {
 
     private final UserDbRepository userDbRepository;
+    private final EventService eventService;
 
     public List<User> getUsers() {
         return userDbRepository.getAll();
@@ -39,6 +41,14 @@ public class UserService {
         checkExistUser(userId);
         checkExistUser(friendId);
         userDbRepository.addFriend(userId, friendId);
+
+        eventService.register(
+                userId,
+                Event.Operation.ADD,
+                Event.EventType.FRIEND,
+                friendId
+        );
+
         return List.of(userDbRepository.getById(userId).get(), userDbRepository.getById(friendId).get());
     }
 
@@ -56,6 +66,14 @@ public class UserService {
     public void deleteFriend(Integer userId, Integer friendId) {
         checkExistUser(userId);
         checkExistUser(friendId);
+
+        eventService.register(
+                userId,
+                Event.Operation.REMOVE,
+                Event.EventType.FRIEND,
+                friendId
+        );
+
         userDbRepository.deleteFriend(userId, friendId);
     }
 

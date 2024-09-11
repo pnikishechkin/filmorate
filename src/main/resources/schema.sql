@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS users_films_likes CASCADE;
 DROP TABLE IF EXISTS likes CASCADE;
 DROP TABLE IF EXISTS reviews CASCADE;
 DROP TABLE IF EXISTS reviews_likes CASCADE;
+DROP TABLE IF EXISTS events CASCADE;
 
 CREATE TABLE IF NOT EXISTS genres
 (
@@ -105,4 +106,14 @@ CREATE TABLE IF NOT EXISTS reviews_likes
     user_id      INT     NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     is_useful    BOOL NOT NULL,
     PRIMARY KEY (review_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS events
+(
+    event_id   INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id    INT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    entity_id  INT NOT NULL,
+    event_type VARCHAR(10) NOT NULL CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
+    operation  VARCHAR(10) NOT NULL CHECK (operation IN ('ADD', 'UPDATE', 'REMOVE')),
+    timestamp  TIMESTAMP NOT NULL
 );
