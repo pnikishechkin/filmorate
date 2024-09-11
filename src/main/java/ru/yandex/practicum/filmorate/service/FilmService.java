@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -111,6 +113,23 @@ public class FilmService {
         Set<Film> userFilms = filmDbRepository.getLikeFilmsByUserId(userId);
         userFilms.retainAll(filmDbRepository.getLikeFilmsByUserId(friendId));
         return userFilms;
+    }
+
+    public List<Film> searchFilm(String query, String by) {
+        Set<String> validByValues = new HashSet<>(Arrays.asList("director", "title", "director,title", "title,director"));
+
+        if (query == null || by == null) {
+            log.error("Переданы некорректные параметры запроса.");
+            throw new IllegalArgumentException("Ошибка! Параметры запроса некорректны.");
+        }
+
+        if (!validByValues.contains(by)) {
+            log.error("Переданы некорректные параметры запроса.");
+            throw new NotFoundException("Ошибка! Параметры запроса некорректны.");
+        }
+
+        List<Film> result = filmDbRepository.searchFilm(query, by);
+        return result;
     }
 
     private void checkGenres(Film film) {
