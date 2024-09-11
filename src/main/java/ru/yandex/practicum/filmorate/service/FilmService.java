@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ public class FilmService {
     private final MpaDbRepository mpaDbRepository;
     private final GenreDbRepository genreDbRepository;
     private final UserDbRepository userDbRepository;
+    private final DirectorService directorService;
 
     public List<Film> getFilms() {
         return filmDbRepository.getAll();
@@ -49,12 +52,12 @@ public class FilmService {
         return filmDbRepository.addFilm(film);
     }
 
-    public Boolean deleteFilm(Film film) {
+    public Boolean deleteFilm(Integer id) {
 
-        filmDbRepository.getById(film.getId()).orElseThrow(() ->
+        filmDbRepository.getById(id).orElseThrow(() ->
                 new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует"));
 
-        return filmDbRepository.deleteFilm(film);
+        return filmDbRepository.deleteFilm(id);
     }
 
     public Film updateFilm(Film film) {
@@ -94,6 +97,39 @@ public class FilmService {
 
     public List<Film> getPopularFilms(Integer count) {
         return filmDbRepository.getPopularFilms(count);
+    }
+
+
+    public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
+        if (!sortBy.equals("year") && !sortBy.equals("likes")) {
+            log.error("Переданы некорректные параметры запроса.");
+            throw new NotFoundException("Ошибка! Параметры запроса некорректны.");
+        }
+        directorService.getDirectorById(directorId);
+        return filmDbRepository.getFilmsByDirector(directorId, sortBy);
+    }
+
+    public Set<Film> getCommonFilms(Integer userId, Integer friendId) {
+        Set<Film> userFilms = filmDbRepository.getLikeFilmsByUserId(userId);
+        userFilms.retainAll(filmDbRepository.getLikeFilmsByUserId(friendId));
+        return userFilms;
+    }
+
+    public List<Film> searchFilm(String query, String by) {
+        Set<String> validByValues = new HashSet<>(Arrays.asList("director", "title", "director,title", "title,director"));
+
+        if (query == null || by == null) {
+            log.error("Переданы некорректные параметры запроса.");
+            throw new IllegalArgumentException("Ошибка! Параметры запроса некорректны.");
+        }
+
+        if (!validByValues.contains(by)) {
+            log.error("Переданы некорректные параметры запроса.");
+            throw new NotFoundException("Ошибка! Параметры запроса некорректны.");
+        }
+
+        List<Film> result = filmDbRepository.searchFilm(query, by);
+        return result;
     }
 
     private void checkGenres(Film film) {

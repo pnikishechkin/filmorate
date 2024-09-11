@@ -13,7 +13,7 @@ public interface FilmRepository {
 
     Film addFilm(Film film);
 
-    Boolean deleteFilm(Film film);
+    Boolean deleteFilm(Integer id);
 
     Film updateFilm(Film film);
 
@@ -24,4 +24,8 @@ public interface FilmRepository {
     Set<Film> getLikeFilmsByUserId(Integer userId);
 
     List<Film> getPopularFilms(Integer count);
+
+    List<Film> getFilmsByDirector(Integer directorId, String sortBy);
+
+    List<Film> searchFilm(String query, String by);
 }

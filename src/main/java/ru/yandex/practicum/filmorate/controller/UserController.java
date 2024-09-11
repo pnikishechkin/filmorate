@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -20,6 +22,7 @@ import java.util.Set;
 @RequestMapping("/users")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -30,7 +33,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable Integer id) {
+    public User getUser(@PathVariable @Positive Integer id) {
         return userService.getUserById(id);
     }
 
@@ -42,13 +45,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public Collection<User> addFriend(@PathVariable Integer id,
-                                      @PathVariable Integer friendId) {
+    public Collection<User> addFriend(@PathVariable @Positive Integer id,
+                                      @PathVariable @Positive Integer friendId) {
         return userService.addFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable Integer id) {
+    public List<User> getFriends(@PathVariable @Positive Integer id) {
         return userService.getFriends(id);
     }
 
@@ -58,19 +61,24 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriends(@PathVariable Integer id,
-                              @PathVariable Integer friendId) {
+    public void deleteFriends(@PathVariable @Positive Integer id,
+                              @PathVariable @Positive Integer friendId) {
         userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User> getCommonFriends(@PathVariable Integer id,
-                                      @PathVariable Integer otherId) {
+    public Set<User> getCommonFriends(@PathVariable @Positive Integer id,
+                                      @PathVariable @Positive Integer otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 
     @GetMapping("/{id}/recommendations")
     public Set<Film> getRecommendations(@PathVariable Integer id) {
         return userService.getRecommendations(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public Boolean deleteUser(@PathVariable @Positive Integer id) {
+        return userService.deleteUser(id);
     }
 }

@@ -20,12 +20,10 @@ import java.util.Set;
 @DisplayName("UserDbRepositoryTest")
 class UserDbRepositoryTest {
 
-    private final UserDbRepository filmDbRepository;
+    private final UserDbRepository userDbRepository;
 
     public static final Integer COUNT_USERS = 3;
     public static final Integer FIRST_USER_ID = 1;
-    @Autowired
-    private UserDbRepository userDbRepository;
 
     public static User getFirstUser() {
         return User.builder().id(FIRST_USER_ID)
@@ -99,7 +97,7 @@ class UserDbRepositoryTest {
         List<User> users = userDbRepository.getAll();
         Assertions.assertEquals(COUNT_USERS + 1, users.size());
 
-        Optional<User> user = filmDbRepository.getById(newUser.getId());
+        Optional<User> user = userDbRepository.getById(newUser.getId());
         Assertions.assertTrue(user.isPresent());
         Assertions.assertEquals(newUser, user.get());
     }
@@ -154,5 +152,28 @@ class UserDbRepositoryTest {
         // then
         Assertions.assertEquals(1, commonFriends.size());
         Assertions.assertTrue(commonFriends.contains(commonFriend));
+    }
+
+    @Test
+    @DisplayName("Удаление имеющегося в базе пользователя")
+    void deleteExistUser_UserDeleted() {
+        // when
+        Boolean res = userDbRepository.deleteUser(FIRST_USER_ID);
+
+        // then
+        Assertions.assertTrue(res);
+        Assertions.assertEquals(2, userDbRepository.getAll().size());
+        Assertions.assertFalse(userDbRepository.getAll().contains(getFirstUser()));
+    }
+
+    @Test
+    @DisplayName("Удаление пользователя, которого нет в базе")
+    void deleteNotExistUser_ResultFalse() {
+        // when (идентификатор не существующего пользователя)
+        Boolean res = userDbRepository.deleteUser(100);
+
+        // then
+        Assertions.assertFalse(res);
+        Assertions.assertEquals(3, userDbRepository.getAll().size());
     }
 }

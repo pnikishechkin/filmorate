@@ -54,6 +54,9 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
             "UPDATE users SET email=:email, login=:login, user_name=:user_name, " +
                     "birthday=:birthday WHERE user_id=:user_id;";
 
+    private static final String SQL_DELETE_USER =
+            "DELETE FROM users WHERE user_id=:user_id";
+
     private static final String SQL_GET_COMMON_USER =
             "SELECT * FROM users WHERE user_id IN (SELECT uf1.friend_id FROM users_friends AS uf1 " +
                     "INNER JOIN users_friends AS uf2 ON uf1.FRIEND_ID = uf2.FRIEND_ID " +
@@ -181,6 +184,25 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     public Set<User> getCommonFriends(Integer id, Integer otherId) {
         return new LinkedHashSet<>(getMany(SQL_GET_COMMON_USER,
                 Map.of("id", id, "other_id", otherId)));
+    }
+
+    /**
+     * Удалить пользователя
+     *
+     * @param id идентификатор удаляемого пользователя
+     * @return флаг, был ли удален пользователь
+     */
+    @Override
+    public Boolean deleteUser(Integer id) {
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params = new MapSqlParameterSource();
+        params.addValue("user_id", id);
+
+        // Удаление фильма
+        int res = jdbc.update(SQL_DELETE_USER, params);
+
+        return (res == 1);
     }
 
     public List<Integer> getIdFilmsLikesByUser(Integer userId) {

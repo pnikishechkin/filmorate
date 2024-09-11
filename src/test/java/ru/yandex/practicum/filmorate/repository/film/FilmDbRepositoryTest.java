@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.repository.director.DirectorDbRepository;
+import ru.yandex.practicum.filmorate.repository.director.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreRowMapper;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
@@ -21,7 +23,8 @@ import java.util.Set;
 
 @JdbcTest
 @Import({FilmDbRepository.class, FilmExtractor.class, FilmGenreRowMapper.class, FilmRowMapper.class,
-        GenreDbRepository.class, GenreRowMapper.class, MpaDbRepository.class, MpaRowMapper.class})
+        GenreDbRepository.class, GenreRowMapper.class, MpaDbRepository.class, MpaRowMapper.class,
+        DirectorDbRepository.class, DirectorRowMapper.class, FilmDirectorRowMapper.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DisplayName("FilmDbRepositoryTest")
 class FilmDbRepositoryTest {
@@ -182,4 +185,28 @@ class FilmDbRepositoryTest {
         Assertions.assertEquals(film2, films.get(1));
         Assertions.assertEquals(film3, films.get(2));
     }
+
+    @Test
+    @DisplayName("Удаление имеющегося в базе фильма")
+    void deleteExistFilm_FilmDeleted() {
+        // when
+        Boolean res = filmDbRepository.deleteFilm(FIRST_FILM_ID);
+
+        // then
+        Assertions.assertTrue(res);
+        Assertions.assertEquals(2, filmDbRepository.getAll().size());
+        Assertions.assertFalse(filmDbRepository.getAll().contains(getFirstFilm()));
+    }
+
+    @Test
+    @DisplayName("Удаление фильма, которого нет в базе")
+    void deleteNotExistFilm_ResultFalse() {
+        // when (идентификатор не существующего фильма)
+        Boolean res = filmDbRepository.deleteFilm(100);
+
+        // then
+        Assertions.assertFalse(res);
+        Assertions.assertEquals(3, filmDbRepository.getAll().size());
+    }
+
 }

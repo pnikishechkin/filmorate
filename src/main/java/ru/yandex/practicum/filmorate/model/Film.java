@@ -36,4 +36,5 @@ public class Film {
     @Min(value = 0, message = "Продолжительность фильма не может быть отрицательной")
     private Integer duration;
     private LinkedHashSet<Genre> genres;
+    private LinkedHashSet<Director> directors;
 }
