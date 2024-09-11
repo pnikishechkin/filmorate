@@ -85,6 +85,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private static final String SQL_DELETE_USER_FILMS_LIKES =
             "DELETE FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
 
+    private static final String SQL_GET_LIKE_ID =
+            "SELECT id FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
+
     private static final String SQL_GET_FILMS_BY_DIRECTOR =
             "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, " +
                     "f.mpa_id, m.mpa_name, " +
@@ -253,7 +256,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
      * @param userId идентификатор пользователя
      */
     @Override
-    public void adduserLike(Integer filmId, Integer userId) {
+    public void addUserLike(Integer filmId, Integer userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("film_id", filmId);
         params.addValue("user_id", userId);

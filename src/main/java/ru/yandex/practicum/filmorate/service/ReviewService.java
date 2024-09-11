@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 import ru.yandex.practicum.filmorate.repository.review.ReviewDbRepository;
@@ -24,21 +25,51 @@ public class ReviewService {
     private final ReviewDbRepository reviewDbRepository;
     private final FilmDbRepository filmDbRepository;
     private final UserDbRepository userDbRepository;
+    private final EventService eventService;
 
     public Review addReview(Review review) {
         checkFilmExist(review.getFilmId());
         checkUserExist(review.getUserId());
-        return reviewDbRepository.addReview(review);
+
+        Review addedReview = reviewDbRepository.addReview(review);
+
+        eventService.register(
+                addedReview.getUserId(),
+                Event.Operation.ADD,
+                Event.EventType.REVIEW,
+                addedReview.getReviewId()
+        );
+
+        return addedReview;
     }
 
     public Review updateReview(Review review) {
         checkFilmExist(review.getFilmId());
         checkUserExist(review.getUserId());
         checkReviewExist(review.getReviewId());
-        return reviewDbRepository.updateReview(review);
+
+        Review updatedReview = reviewDbRepository.updateReview(review);
+
+        eventService.register(
+                updatedReview.getUserId(),
+                Event.Operation.UPDATE,
+                Event.EventType.REVIEW,
+                updatedReview.getReviewId()
+        );
+
+        return updatedReview;
     }
 
     public Boolean deleteReview(Integer id) {
+        Review review = getReviewById(id);
+
+        eventService.register(
+                review.getUserId(),
+                Event.Operation.REMOVE,
+                Event.EventType.REVIEW,
+                review.getReviewId()
+        );
+
         return reviewDbRepository.deleteReview(id);
     }
 

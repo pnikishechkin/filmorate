@@ -128,7 +128,7 @@ class FilmDbRepositoryTest {
         Film film = filmDbRepository.getById(2).get();
 
         // when
-        filmDbRepository.adduserLike(2, 3);
+        filmDbRepository.addUserLike(2, 3);
 
         // then
         Assertions.assertTrue(filmDbRepository.getLikeFilmsByUserId(3).contains(film));

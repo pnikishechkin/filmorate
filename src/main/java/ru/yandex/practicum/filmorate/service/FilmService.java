@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
@@ -33,6 +34,7 @@ public class FilmService {
     private final GenreDbRepository genreDbRepository;
     private final UserDbRepository userDbRepository;
     private final DirectorService directorService;
+    private final EventService eventService;
 
     public List<Film> getFilms() {
         return filmDbRepository.getAll();
@@ -81,7 +83,14 @@ public class FilmService {
         userDbRepository.getById(userId).orElseThrow(() ->
                 new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
 
-        filmDbRepository.adduserLike(filmId, userId);
+        filmDbRepository.addUserLike(filmId, userId);
+
+        eventService.register(
+                userId,
+                Event.Operation.ADD,
+                Event.EventType.LIKE,
+                filmId
+        );
     }
 
     public void deleteUserLike(Integer filmId, Integer userId) {
@@ -91,6 +100,13 @@ public class FilmService {
 
         userDbRepository.getById(userId).orElseThrow(() ->
                 new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
+
+        eventService.register(
+                userId,
+                Event.Operation.REMOVE,
+                Event.EventType.LIKE,
+                filmId
+        );
 
         filmDbRepository.deleteUserLike(filmId, userId);
     }
