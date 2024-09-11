@@ -30,7 +30,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private final DirectorDbRepository directorDbRepository;
     private final FilmDirectorRowMapper filmDirectorRowMapper;
 
-    public FilmDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Film> mapper, GenreDbRepository genreDbRepository, FilmExtractor filmExtractor, FilmGenreRowMapper filmGenreRowMapper, DirectorDbRepository directorDbRepository, FilmDirectorRowMapper filmDirectorRowMapper) {
+
+    public FilmDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<Film> mapper, GenreDbRepository genreDbRepository,
+                            FilmExtractor filmExtractor, FilmGenreRowMapper filmGenreRowMapper, DirectorDbRepository directorDbRepository, FilmDirectorRowMapper filmDirectorRowMapper) {
         super(jdbc, mapper);
         this.genreDbRepository = genreDbRepository;
         this.filmExtractor = filmExtractor;

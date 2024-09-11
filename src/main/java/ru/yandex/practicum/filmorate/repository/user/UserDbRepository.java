@@ -5,10 +5,13 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
+import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Репозиторий для управления пользователями
@@ -16,8 +19,11 @@ import java.util.*;
 @Repository
 public class UserDbRepository extends BaseDbRepository<User> implements UserRepository {
 
-    public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper) {
+    private final FilmDbRepository filmDbRepository;
+
+    public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper, FilmDbRepository filmDbRepository) {
         super(jdbc, mapper);
+        this.filmDbRepository = filmDbRepository;
     }
 
     private static final String SQL_GET_ALL_USERS =
@@ -197,5 +203,59 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         int res = jdbc.update(SQL_DELETE_USER, params);
 
         return (res == 1);
+    }
+
+    public List<Integer> getIdFilmsLikesByUser(Integer userId) {
+        String sql = "SELECT film_id FROM users_films_likes WHERE user_id = :user_id;";
+        return jdbc.queryForList(sql, Map.of("user_id", userId), Integer.class);
+    }
+
+    public Set<Film> getRecommendations(Integer userId) {
+
+        Map<Integer, List<Integer>> userIdFilmsLikes = new HashMap<>();
+        List<User> users = this.getAll();
+
+        // Наполняем мапу "идентификатор пользователя -> список идентификаторов пролайканных им фильмов"
+        for (User user : users) {
+            userIdFilmsLikes.put(user.getId(), this.getIdFilmsLikesByUser(user.getId()));
+        }
+
+        long maxCount = 0;
+
+        // Определяем пользователя(лей), вкусы которых максимально близки к заданному пользователю
+        Set<Integer> overlapUserIds = new HashSet<>();
+        for (Integer id : userIdFilmsLikes.keySet()) {
+
+            // Пропускаем поиск для нашего пользователя
+            if (id.equals(userId))
+                continue;
+
+            // Определяем количество пересечений по лайканным фильмам с заданным пользователем
+            Integer overlapCount = (int) userIdFilmsLikes.get(id).stream()
+                    .filter(filmId -> userIdFilmsLikes.get(userId)
+                            .contains(filmId)).count();
+
+            // В случае равенства с максимальным значением, также сохраняем идентификатор пользователя
+            if (overlapCount == maxCount && overlapCount != 0) {
+                overlapUserIds.add(id);
+            }
+
+            // Если определили новое максимальное значение пересечений, создаем множество пользователей заново
+            if (overlapCount > maxCount) {
+                maxCount = overlapCount;
+                overlapUserIds = new HashSet<>();
+                overlapUserIds.add(id);
+            }
+        }
+
+        // Находим фильмы, которые понравились пользователям с схожими вкусами
+        HashSet<Film> res = new HashSet<>(
+                overlapUserIds.stream()
+                        .flatMap(idUser -> userIdFilmsLikes.get(idUser).stream())
+                        .filter(filmId -> !userIdFilmsLikes.get(userId).contains(filmId))
+                        .map(filmId -> filmDbRepository.getById(filmId).get())
+                        .collect(Collectors.toSet()));
+
+        return res;
     }
 }
