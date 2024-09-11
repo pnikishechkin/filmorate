@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Репозиторий для управления пользователями
@@ -230,12 +229,13 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         }
 
         System.out.println(overlap);
-        if (maxCount == 0)
-            return new HashSet<>();
-        else
-            return overlap.stream().flatMap(idUser -> this.getIdFilmsLikesByUser(idUser).stream())
-                .filter(filmId -> !userIdFilmsLikes.get(userId).contains(filmId))
-                .map(filmId -> filmDbRepository.getById(filmId))
-                .collect(Collectors.toSet());
+        return null;
+//        if (maxCount == 0)
+//            return new HashSet<>();
+//        else
+//            return overlap.stream().flatMap(idUser -> this.getIdFilmsLikesByUser(idUser).stream())
+//                .filter(filmId -> !userIdFilmsLikes.get(userId).contains(filmId))
+//                .map(filmId -> filmDbRepository.getById(filmId))
+//                .collect(Collectors.toSet());
     }
 }
