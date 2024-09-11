@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Репозиторий для управления пользователями
@@ -192,51 +193,47 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         Map<Integer, List<Integer>> userIdFilmsLikes = new HashMap<>();
         List<User> users = this.getAll();
 
-        System.out.println("Исходный: " + userId);
-
         // Наполняем мапу "идентификатор пользователя -> список идентификаторов пролайканных им фильмов"
         for (User user : users) {
             userIdFilmsLikes.put(user.getId(), this.getIdFilmsLikesByUser(user.getId()));
-            System.out.println(user.getId() + " | " + this.getIdFilmsLikesByUser(user.getId()));
         }
 
         long maxCount = 0;
-        Set<Integer> overlap = new HashSet<>();
 
-        // Определяем список фильмов, рекомендованных пользователю на основе предпочтений других пользователей
+        // Определяем пользователя(лей), вкусы которых максимально близки к заданному пользователю
+        Set<Integer> overlapUserIds = new HashSet<>();
         for (Integer id : userIdFilmsLikes.keySet()) {
 
             // Пропускаем поиск для нашего пользователя
-            if (id.equals(userId)) continue;
+            if (id.equals(userId))
+                continue;
 
-            // Определяем количество пересечений по лайканным фильмам с другими
-            Integer numberOfOverlap = (int) userIdFilmsLikes.get(id).stream()
-                    .filter(filmId -> userIdFilmsLikes.get(userId).contains(filmId)).count();
+            // Определяем количество пересечений по лайканным фильмам с заданным пользователем
+            Integer overlapCount = (int) userIdFilmsLikes.get(id).stream()
+                    .filter(filmId -> userIdFilmsLikes.get(userId)
+                            .contains(filmId)).count();
 
-            System.out.println(id + " - " + numberOfOverlap);
-
-            // В случае равенства с максимальным, записываем
-            if (numberOfOverlap == maxCount && numberOfOverlap != 0) {
-                overlap.add(id);
+            // В случае равенства с максимальным значением, также сохраняем идентификатор пользователя
+            if (overlapCount == maxCount && overlapCount != 0) {
+                overlapUserIds.add(id);
             }
 
-            // Определили новое максимальное значение пересечений
-            if (numberOfOverlap > maxCount) {
-                maxCount = numberOfOverlap;
-                overlap = new HashSet<>();
-                overlap.add(id);
+            // Если определили новое максимальное значение пересечений, создаем множество пользователей заново
+            if (overlapCount > maxCount) {
+                maxCount = overlapCount;
+                overlapUserIds = new HashSet<>();
+                overlapUserIds.add(id);
             }
         }
 
-        System.out.println(overlap);
-        return null; // null
+        // Находим фильмы, которые понравились пользователям с схожими вкусами
+        HashSet<Film> res = new HashSet<>(
+                overlapUserIds.stream()
+                        .flatMap(idUser -> userIdFilmsLikes.get(idUser).stream())
+                        .filter(filmId -> !userIdFilmsLikes.get(userId).contains(filmId))
+                        .map(filmId -> filmDbRepository.getById(filmId).get())
+                        .collect(Collectors.toSet()));
 
-//        if (maxCount == 0)
-//            return new HashSet<>();
-//        else
-//            return overlap.stream().flatMap(idUser -> this.getIdFilmsLikesByUser(idUser).stream())
-//                .filter(filmId -> !userIdFilmsLikes.get(userId).contains(filmId))
-//                .map(filmId -> filmDbRepository.getById(filmId))
-//                .collect(Collectors.toSet());
+        return res;
     }
 }
