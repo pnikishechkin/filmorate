@@ -5,9 +5,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
+import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,8 +19,11 @@ import java.util.stream.Collectors;
 @Repository
 public class UserDbRepository extends BaseDbRepository<User> implements UserRepository {
 
-    public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper) {
+    private final FilmDbRepository filmDbRepository;
+
+    public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper, FilmDbRepository filmDbRepository) {
         super(jdbc, mapper);
+        this.filmDbRepository = filmDbRepository;
     }
 
     private static final String SQL_GET_ALL_USERS =
@@ -57,6 +61,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список пользователей
+     *
      * @return список пользователей
      */
     @Override
@@ -66,6 +71,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить пользователя по идентификатору
+     *
      * @param id идентификатор пользователя
      * @return объект пользователя (опционально)
      */
@@ -78,6 +84,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список друзей пользователя
+     *
      * @param id идентификатор пользователя
      * @return спсиок объектов друзей пользователя
      */
@@ -88,6 +95,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Добавить нового пользователя
+     *
      * @param user объект добавляемого пользователя
      * @return объект добавленного пользователя
      */
@@ -110,7 +118,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Добавить в друзья
-     * @param userId пользователь, кто хочет добавить в друзья
+     *
+     * @param userId   пользователь, кто хочет добавить в друзья
      * @param friendId пользователь, кого надо добавить в друзья
      */
     @Override
@@ -125,6 +134,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Обновить данные пользователя
+     *
      * @param user объект изменяемого пользователя
      * @return измененный пользователь
      */
@@ -150,7 +160,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Удалить из друзей
-     * @param userId идентификтор пользователя, кто удаляет из друзей
+     *
+     * @param userId   идентификтор пользователя, кто удаляет из друзей
      * @param friendId идентификатор пользователя, кого удаляют из друзей
      */
     @Override
@@ -161,7 +172,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список общих друзей между двумя пользователями
-     * @param id первый пользователь
+     *
+     * @param id      первый пользователь
      * @param otherId второй пользователь
      * @return множество с объектами пользователей, являющихся общими друзьями для заданных
      */
@@ -170,31 +182,46 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         return new LinkedHashSet<>(getMany(SQL_GET_COMMON_USER,
                 Map.of("id", id, "other_id", otherId)));
     }
-    @Override
-    public List<Long> getUserFilm(Long uderId) {
-        String sql = "SELECT film_id FROM films_likes WHERE user_id = ?";
-        return jdbc.query(sql, (rs, rowNum) -> rs.getLong("film_id"));
+
+    public List<Integer> getIdFilmsLikesByUser(Integer userId) {
+        String sql = "SELECT film_id FROM users_films_likes WHERE user_id = :user_id;";
+        return jdbc.queryForList(sql, Map.of("user_id", userId), Integer.class);
     }
 
-    @Override
-    public Set<Film> getReccomend(Long userId) {
-        Map<Long, List<Long>> filmForUser = new HashMap<>();
-        List<User> users = userService.getUsers();
+    public Set<Film> getRecommendations(Integer userId) {
+
+        Map<Integer, List<Integer>> userIdFilmsLikes = new HashMap<>();
+        List<User> users = this.getAll();
+
+        System.out.println("Исходный: " + userId);
+
+        // Наполняем мапу "идентификатор пользователя -> список идентификаторов пролайканных им фильмов"
         for (User user : users) {
-            filmForUser.put(user.getId(), userService.getUserFilm(user.getId()));
+            userIdFilmsLikes.put(user.getId(), this.getIdFilmsLikesByUser(user.getId()));
+            System.out.println(user.getId() + " | " + this.getIdFilmsLikesByUser(user.getId()));
         }
+
         long maxCount = 0;
-        Set<Long> overlap = new HashSet<>();
-        for (Long id : filmForUser.keySet()) {
-            if (id == userId) continue;
+        Set<Integer> overlap = new HashSet<>();
 
-            long numberOfOverlap = filmForUser.get(id).stream()
-                    .filter(filmId -> filmForUser.get(userId).contains(filmId)).count();
+        // Определяем список фильмов, рекомендованных пользователю на основе предпочтений других пользователей
+        for (Integer id : userIdFilmsLikes.keySet()) {
 
-            if (numberOfOverlap == maxCount & numberOfOverlap != 0) {
+            // Пропускаем поиск для нашего пользователя
+            if (id.equals(userId)) continue;
+
+            // Определяем количество пересечений по лайканным фильмам с другими
+            Integer numberOfOverlap = (int) userIdFilmsLikes.get(id).stream()
+                    .filter(filmId -> userIdFilmsLikes.get(userId).contains(filmId)).count();
+
+            System.out.println(id + " - " + numberOfOverlap);
+
+            // В случае равенства с максимальным, записываем
+            if (numberOfOverlap == maxCount && numberOfOverlap != 0) {
                 overlap.add(id);
             }
 
+            // Определили новое максимальное значение пересечений
             if (numberOfOverlap > maxCount) {
                 maxCount = numberOfOverlap;
                 overlap = new HashSet<>();
@@ -202,10 +229,13 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
             }
         }
 
-        if (maxCount == 0) return new HashSet<>();
-        else return overlap.stream().flatMap(idUser -> userService.getUserFilm(idUser).stream())
-                .filter(filmId -> !filmForUser.get(userId).contains(filmId))
-                .map(filmId -> filmService.getFilmById((filmId))
-                        .collect(Collectors.toSet());
+        System.out.println(overlap);
+        if (maxCount == 0)
+            return new HashSet<>();
+        else
+            return overlap.stream().flatMap(idUser -> this.getIdFilmsLikesByUser(idUser).stream())
+                .filter(filmId -> !userIdFilmsLikes.get(userId).contains(filmId))
+                .map(filmId -> filmDbRepository.getById(filmId))
+                .collect(Collectors.toSet());
     }
 }
