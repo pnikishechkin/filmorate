@@ -93,8 +93,8 @@ public class FilmService {
         filmDbRepository.deleteUserLike(filmId, userId);
     }
 
-    public List<Film> getPopularFilms(Integer count, Integer id, LocalDate releaseDate) {
-        return filmDbRepository.getPopularFilms(count, id, releaseDate);
+    public List<Film> getPopularFilms(Integer count, Integer genre_id, Integer year) {
+        return filmDbRepository.getPopularFilms(count, genre_id, year);
     }
 
     private void checkGenres(Film film) {

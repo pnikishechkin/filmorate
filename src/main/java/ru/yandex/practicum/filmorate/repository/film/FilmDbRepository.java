@@ -253,8 +253,8 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
      * @return список фильмов
      */
     @Override
-    public List<Film> getPopularFilms(Integer count, Integer id, LocalDate releaseDate) {
-        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count, "id", id, "releaseDate", releaseDate));
+    public List<Film> getPopularFilms(Integer count, Integer genre_id, Integer year) {
+        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count, "genre_id", genre_id, "year", year));
     }
 
     /**
