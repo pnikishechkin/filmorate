@@ -248,6 +248,8 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
      * Получить список популярных фильмов
      *
      * @param count количество выводимых фильмов
+     * @param id идентификатор жанра
+     * @param releaseDate дата
      * @return список фильмов
      */
     @Override
