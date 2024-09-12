@@ -296,9 +296,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     /**
      * Получить список популярных фильмов
      *
-     * @param count количество выводимых фильмов
+     * @param count   количество выводимых фильмов
      * @param genreId идентификатор жанра
-     * @param year дата
+     * @param year    дата
      * @return список фильмов
      */
 
@@ -342,6 +342,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
                 "LIMIT :count;";
         return this.getFilms(sql, Map.of("count", count, "genreId", genreId));
     }
+
     @Override
     public List<Film> getPopularFilmsWithGenreAndYear(Integer count, Integer year, Integer genreId) {
         final String sql = "SELECT * " +
@@ -365,6 +366,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
         return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count, "genreId", genreId, "year", year));
     }
+
     @Override
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         String str;
