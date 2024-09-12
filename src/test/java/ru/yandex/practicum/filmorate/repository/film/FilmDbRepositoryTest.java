@@ -178,7 +178,7 @@ class FilmDbRepositoryTest {
         Film film3 = filmDbRepository.getById(3).get();
 
         // when
-        List<Film> films = filmDbRepository.getPopularFilms(5);
+        List<Film> films = filmDbRepository.getPopularFilms(5, 1, 2000);
 
         // then
         Assertions.assertEquals(film1, films.get(0));
