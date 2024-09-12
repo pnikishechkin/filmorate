@@ -63,7 +63,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
                     "VALUES (:film_id, :genre_id);";
 
     private static final String SQL_INSERT_USER_FILMS_LIKES =
-            "INSERT INTO users_films_likes (user_id, film_id) " +
+            "MERGE INTO users_films_likes (user_id, film_id) " +
                     "VALUES (:user_id, :film_id);";
 
     private static final String SQL_DELETE_FILMS_GENRES =
@@ -138,7 +138,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
                     "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                     "LEFT JOIN film_directors AS fd ON f.film_id = fd.film_id " +
                     "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
-                    "LEFT JOIN likes AS l ON f.film_id = l.film_id ";
+                    "LEFT JOIN users_films_likes AS l ON f.film_id = l.film_id ";
 
     /**
      * Получить все фильмы
@@ -324,16 +324,16 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         String group = "GROUP BY f.film_id, fg.genre_id, fd.director_id " +
                 "ORDER BY like_count DESC; ";
         String sql;
+
         if ("director".equals(by)) {
-            sql = "WHERE d.director_name LIKE :param ";
+            sql = "WHERE LOWER(d.director_name) LIKE LOWER(:param) ";
         } else if ("title".equals(by)) {
-            sql = "WHERE f.film_name LIKE :param ";
+            sql = "WHERE LOWER(f.film_name) LIKE LOWER(:param) ";
         } else if ("director,title".equals(by) || "title,director".equals(by)) {
-            sql = "WHERE f.film_name LIKE :param OR d.director_name LIKE :param ";
+            sql = "WHERE (LOWER(f.film_name) LIKE LOWER(:param)) OR (LOWER(d.director_name) LIKE LOWER(:param)) ";
         } else {
             throw new IllegalArgumentException("Неверное значение параметра 'by': " + by);
         }
-
         String result = SQL_FILM_SEARCH + sql + group;
         String param = "%" + query + "%";
 
