@@ -48,7 +48,7 @@ public class ReviewService {
         checkUserExist(review.getUserId());
         checkReviewExist(review.getReviewId());
 
-        Review updatedReview = reviewDbRepository.updateReview(review);
+        final Review updatedReview = reviewDbRepository.updateReview(review);
 
         eventService.register(
                 updatedReview.getUserId(),

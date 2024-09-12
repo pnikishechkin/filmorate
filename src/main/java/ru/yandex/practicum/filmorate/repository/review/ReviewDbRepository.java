@@ -70,9 +70,10 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
     private static final String SQL_DELETE_LIKE =
             "DELETE FROM reviews_likes WHERE (review_id = :review_id AND user_id = :user_id);";
 
-    private static final String SQL_UPDATE_REVIEW =
-            "UPDATE reviews SET film_id=:film_id, user_id=:user_id, content=:content, is_positive=:is_positive " +
-                    "WHERE review_id = :review_id; ";
+    private static final String SQL_UPDATE_REVIEW = "UPDATE reviews SET content = :content " +
+            "WHERE review_id = :review_id; ";
+//            "UPDATE reviews SET film_id=:film_id, user_id=:user_id, content=:content, is_positive=:is_positive " +
+//                    "WHERE review_id = :review_id; ";
 
     @Override
     public Review addReview(Review review) {
