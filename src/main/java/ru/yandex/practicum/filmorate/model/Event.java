@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,6 +16,7 @@ import java.sql.Timestamp;
 @ToString
 public class Event {
     private Integer eventId; // pk
+    @NotNull
     private Integer userId; // ref user.id
     private Integer entityId;
     private EventType eventType;

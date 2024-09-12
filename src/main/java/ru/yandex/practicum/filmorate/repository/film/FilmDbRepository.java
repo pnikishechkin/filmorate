@@ -69,6 +69,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private static final String SQL_DELETE_FILMS_GENRES =
             "DELETE FROM films_genres WHERE film_id=:film_id";
 
+    private static final String SQL_DELETE_FILMS_DIRECTORS =
+            "DELETE FROM film_directors WHERE film_id=:film_id";
+
     private static final String SQL_DELETE_FILM =
             "DELETE FROM films WHERE film_id=:film_id";
 
@@ -241,6 +244,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
         // Удаление связей фильма с жанрами
         jdbc.update(SQL_DELETE_FILMS_GENRES, params);
+        jdbc.update(SQL_DELETE_FILMS_DIRECTORS, params);
 
         // Batch добавление связей фильма с жанрами
         addGenresToDb(film);
