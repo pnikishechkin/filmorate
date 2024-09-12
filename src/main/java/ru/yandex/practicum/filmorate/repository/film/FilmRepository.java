@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.repository.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,8 +24,12 @@ public interface FilmRepository {
     Set<Film> getLikeFilmsByUserId(Integer userId);
 
     List<Film> getPopularFilms(Integer count, Integer genreId, Integer year);
+
     List<Film> getPopularFilmsWithGenreAndYear(Integer count, Integer year, Integer genreId);
+
     List<Film> getPopularFilmsWithGenre(Integer count, Integer genreId);
+
     List<Film> getPopularFilmsWithYear(Integer count, Integer year);
+
     List<Film> getPopularFilms(Integer count);
 }

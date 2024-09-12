@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -260,43 +259,45 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     @Override
     public List<Film> getPopularFilmsWithYear(Integer count, Integer year) {
-        final String sql = "SELECT f.* " +
+        final String sql = "SELECT * " +
                 "FROM films AS f " +
                 "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
                 "WHERE f.film_id IN (" +
                 "    SELECT film_id " +
                 "    FROM USERS_FILMS_LIKES " +
                 "    GROUP BY film_id " +
                 "    ORDER BY COUNT(film_id) DESC " +
-                ")" +
-                "AND f.release_date = :year " +
+                ") " +
+                "AND EXTRACT(YEAR FROM f.release_date) = :year " +
                 "LIMIT :count;";
         return this.getFilms(sql, Map.of("count", count, "year", year));
     }
 
     @Override
     public List<Film> getPopularFilmsWithGenre(Integer count, Integer genreId) {
-        final String sql = "SELECT f.* " +
+        final String sql = "SELECT * " +
                 "FROM films AS f " +
                 "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
-                "LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
                 "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
                 "WHERE f.film_id IN (" +
                 "    SELECT film_id " +
                 "    FROM USERS_FILMS_LIKES " +
                 "    GROUP BY film_id " +
                 "    ORDER BY COUNT(film_id) DESC " +
-                ")" +
+                ") " +
                 "AND g.genre_id = :genreId " +
                 "LIMIT :count;";
         return this.getFilms(sql, Map.of("count", count, "genreId", genreId));
     }
     @Override
     public List<Film> getPopularFilmsWithGenreAndYear(Integer count, Integer year, Integer genreId) {
-        final String sql = "SELECT f.* " +
+        final String sql = "SELECT * " +
                 "FROM films AS f " +
                 "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
-                "LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
                 "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
                 "WHERE f.film_id IN (" +
                 "    SELECT film_id " +
@@ -305,7 +306,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
                 "    ORDER BY COUNT(film_id) DESC " +
                 ")" +
                 "AND g.genre_id = :genreId " +
-                "AND f.release_date = :year" +
+                "AND EXTRACT(YEAR FROM f.release_date) = :year " +
                 "LIMIT :count;";
         return this.getFilms(sql, Map.of("count", count, "year", year, "genreId", genreId));
     }
@@ -322,6 +323,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
      * @return список фильмов
      */
     private List<Film> getFilms(String query, Map<String, Object> map) {
+
+        System.out.println("getFilms");
+
         // Получаем все фильмы с включенными данными рейтинга
         List<Film> films = jdbc.query(query, map, mapper);
         films.forEach(f -> f.setGenres(new LinkedHashSet<>()));
@@ -344,6 +348,8 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
                     }
                 }
         );
+
+        System.out.println(films);
 
         return films;
     }
