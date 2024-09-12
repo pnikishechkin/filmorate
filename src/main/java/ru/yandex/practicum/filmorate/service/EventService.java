@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.repository.event.EventRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -20,8 +22,8 @@ public class EventService {
     private final UserDbRepository userDbRepository;
 
     public void register(Integer userId,
-                         Event.Operation operation,
-                         Event.EventType eventType,
+                         Operation operation,
+                         EventType eventType,
                          Integer entityId) {
         Event event = Event.builder()
                 .userId(userId)

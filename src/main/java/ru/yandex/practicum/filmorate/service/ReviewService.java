@@ -5,11 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 import ru.yandex.practicum.filmorate.repository.review.ReviewDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.util.List;
 
@@ -35,8 +36,8 @@ public class ReviewService {
 
         eventService.register(
                 addedReview.getUserId(),
-                Event.Operation.ADD,
-                Event.EventType.REVIEW,
+                Operation.ADD,
+                EventType.REVIEW,
                 addedReview.getReviewId()
         );
 
@@ -53,8 +54,8 @@ public class ReviewService {
 
         eventService.register(
                 updatedReview.getUserId(),
-                Event.Operation.UPDATE,
-                Event.EventType.REVIEW,
+                Operation.UPDATE,
+                EventType.REVIEW,
                 updatedReview.getReviewId()
         );
 
@@ -66,8 +67,8 @@ public class ReviewService {
 
         eventService.register(
                 review.getUserId(),
-                Event.Operation.REMOVE,
-                Event.EventType.REVIEW,
+                Operation.REMOVE,
+                EventType.REVIEW,
                 review.getReviewId()
         );
 

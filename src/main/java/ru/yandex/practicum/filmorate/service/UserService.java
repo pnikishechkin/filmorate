@@ -6,9 +6,10 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,8 +51,8 @@ public class UserService {
 
         eventService.register(
                 userId,
-                Event.Operation.ADD,
-                Event.EventType.FRIEND,
+                Operation.ADD,
+                EventType.FRIEND,
                 friendId
         );
 
@@ -75,8 +76,8 @@ public class UserService {
 
         eventService.register(
                 userId,
-                Event.Operation.REMOVE,
-                Event.EventType.FRIEND,
+                Operation.REMOVE,
+                EventType.FRIEND,
                 friendId
         );
 
