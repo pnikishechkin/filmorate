@@ -248,15 +248,72 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
      * Получить список популярных фильмов
      *
      * @param count количество выводимых фильмов
-     * @param id идентификатор жанра
-     * @param releaseDate дата
+     * @param genreId идентификатор жанра
+     * @param year дата
      * @return список фильмов
      */
+
     @Override
-    public List<Film> getPopularFilms(Integer count, Integer genre_id, Integer year) {
-        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count, "genre_id", genre_id, "year", year));
+    public List<Film> getPopularFilms(Integer count) {
+        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count));
     }
 
+    @Override
+    public List<Film> getPopularFilmsWithYear(Integer count, Integer year) {
+        final String sql = "SELECT f.* " +
+                "FROM films AS f " +
+                "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
+                "WHERE f.film_id IN (" +
+                "    SELECT film_id " +
+                "    FROM USERS_FILMS_LIKES " +
+                "    GROUP BY film_id " +
+                "    ORDER BY COUNT(film_id) DESC " +
+                ")" +
+                "AND f.release_date = :year " +
+                "LIMIT :count;";
+        return this.getFilms(sql, Map.of("count", count, "year", year));
+    }
+
+    @Override
+    public List<Film> getPopularFilmsWithGenre(Integer count, Integer genreId) {
+        final String sql = "SELECT f.* " +
+                "FROM films AS f " +
+                "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "WHERE f.film_id IN (" +
+                "    SELECT film_id " +
+                "    FROM USERS_FILMS_LIKES " +
+                "    GROUP BY film_id " +
+                "    ORDER BY COUNT(film_id) DESC " +
+                ")" +
+                "AND g.genre_id = :genreId " +
+                "LIMIT :count;";
+        return this.getFilms(sql, Map.of("count", count, "genreId", genreId));
+    }
+    @Override
+    public List<Film> getPopularFilmsWithGenreAndYear(Integer count, Integer year, Integer genreId) {
+        final String sql = "SELECT f.* " +
+                "FROM films AS f " +
+                "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "WHERE f.film_id IN (" +
+                "    SELECT film_id " +
+                "    FROM USERS_FILMS_LIKES " +
+                "    GROUP BY film_id " +
+                "    ORDER BY COUNT(film_id) DESC " +
+                ")" +
+                "AND g.genre_id = :genreId " +
+                "AND f.release_date = :year" +
+                "LIMIT :count;";
+        return this.getFilms(sql, Map.of("count", count, "year", year, "genreId", genreId));
+    }
+
+    @Override
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count, "genreId", genreId, "year", year));
+    }
     /**
      * Получить список фильмов по заданному запросу, в связке с жанрами
      *

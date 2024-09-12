@@ -15,8 +15,11 @@ import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 /**
  * Сервисный класс для управления фильмами
@@ -93,9 +96,19 @@ public class FilmService {
         filmDbRepository.deleteUserLike(filmId, userId);
     }
 
-    public List<Film> getPopularFilms(Integer count, Integer genre_id, Integer year) {
-        return filmDbRepository.getPopularFilms(count, genre_id, year);
+
+    public List<Film> getPopularFilms(Integer count, Integer year, Integer genreId) {
+        if (year == null && genreId == null) {
+            return filmDbRepository.getPopularFilms(count);
+        } else if (year != null && genreId == null) {
+            return filmDbRepository.getPopularFilmsWithYear(count, year);
+        } else if (year == null && genreId != null) {
+            return filmDbRepository.getPopularFilmsWithGenre(count, genreId);
+        } else {
+            return filmDbRepository.getPopularFilmsWithGenreAndYear(count, year, genreId);
+        }
     }
+
 
     private void checkGenres(Film film) {
         if (film.getGenres() != null) {
