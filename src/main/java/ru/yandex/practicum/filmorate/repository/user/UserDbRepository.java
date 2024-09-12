@@ -85,6 +85,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         return user;
     }
 
+
     /**
      * Получить список друзей пользователя
      *
