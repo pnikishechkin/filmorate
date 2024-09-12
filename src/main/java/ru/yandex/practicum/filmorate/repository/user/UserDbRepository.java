@@ -5,10 +5,13 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.base.BaseDbRepository;
+import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Репозиторий для управления пользователями
@@ -16,8 +19,11 @@ import java.util.*;
 @Repository
 public class UserDbRepository extends BaseDbRepository<User> implements UserRepository {
 
-    public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper) {
+    private final FilmDbRepository filmDbRepository;
+
+    public UserDbRepository(NamedParameterJdbcTemplate jdbc, RowMapper<User> mapper, FilmDbRepository filmDbRepository) {
         super(jdbc, mapper);
+        this.filmDbRepository = filmDbRepository;
     }
 
     private static final String SQL_GET_ALL_USERS =
@@ -48,6 +54,9 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
             "UPDATE users SET email=:email, login=:login, user_name=:user_name, " +
                     "birthday=:birthday WHERE user_id=:user_id;";
 
+    private static final String SQL_DELETE_USER =
+            "DELETE FROM users WHERE user_id=:user_id";
+
     private static final String SQL_GET_COMMON_USER =
             "SELECT * FROM users WHERE user_id IN (SELECT uf1.friend_id FROM users_friends AS uf1 " +
                     "INNER JOIN users_friends AS uf2 ON uf1.FRIEND_ID = uf2.FRIEND_ID " +
@@ -55,6 +64,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список пользователей
+     *
      * @return список пользователей
      */
     @Override
@@ -64,6 +74,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить пользователя по идентификатору
+     *
      * @param id идентификатор пользователя
      * @return объект пользователя (опционально)
      */
@@ -76,6 +87,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список друзей пользователя
+     *
      * @param id идентификатор пользователя
      * @return спсиок объектов друзей пользователя
      */
@@ -86,6 +98,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Добавить нового пользователя
+     *
      * @param user объект добавляемого пользователя
      * @return объект добавленного пользователя
      */
@@ -108,7 +121,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Добавить в друзья
-     * @param userId пользователь, кто хочет добавить в друзья
+     *
+     * @param userId   пользователь, кто хочет добавить в друзья
      * @param friendId пользователь, кого надо добавить в друзья
      */
     @Override
@@ -123,6 +137,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Обновить данные пользователя
+     *
      * @param user объект изменяемого пользователя
      * @return измененный пользователь
      */
@@ -148,7 +163,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Удалить из друзей
-     * @param userId идентификтор пользователя, кто удаляет из друзей
+     *
+     * @param userId   идентификтор пользователя, кто удаляет из друзей
      * @param friendId идентификатор пользователя, кого удаляют из друзей
      */
     @Override
@@ -159,7 +175,8 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
 
     /**
      * Получить список общих друзей между двумя пользователями
-     * @param id первый пользователь
+     *
+     * @param id      первый пользователь
      * @param otherId второй пользователь
      * @return множество с объектами пользователей, являющихся общими друзьями для заданных
      */
@@ -167,5 +184,78 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     public Set<User> getCommonFriends(Integer id, Integer otherId) {
         return new LinkedHashSet<>(getMany(SQL_GET_COMMON_USER,
                 Map.of("id", id, "other_id", otherId)));
+    }
+
+    /**
+     * Удалить пользователя
+     *
+     * @param id идентификатор удаляемого пользователя
+     * @return флаг, был ли удален пользователь
+     */
+    @Override
+    public Boolean deleteUser(Integer id) {
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params = new MapSqlParameterSource();
+        params.addValue("user_id", id);
+
+        // Удаление фильма
+        int res = jdbc.update(SQL_DELETE_USER, params);
+
+        return (res == 1);
+    }
+
+    public List<Integer> getIdFilmsLikesByUser(Integer userId) {
+        String sql = "SELECT film_id FROM users_films_likes WHERE user_id = :user_id;";
+        return jdbc.queryForList(sql, Map.of("user_id", userId), Integer.class);
+    }
+
+    public Set<Film> getRecommendations(Integer userId) {
+
+        Map<Integer, List<Integer>> userIdFilmsLikes = new HashMap<>();
+        List<User> users = this.getAll();
+
+        // Наполняем мапу "идентификатор пользователя -> список идентификаторов пролайканных им фильмов"
+        for (User user : users) {
+            userIdFilmsLikes.put(user.getId(), this.getIdFilmsLikesByUser(user.getId()));
+        }
+
+        long maxCount = 0;
+
+        // Определяем пользователя(лей), вкусы которых максимально близки к заданному пользователю
+        Set<Integer> overlapUserIds = new HashSet<>();
+        for (Integer id : userIdFilmsLikes.keySet()) {
+
+            // Пропускаем поиск для нашего пользователя
+            if (id.equals(userId))
+                continue;
+
+            // Определяем количество пересечений по лайканным фильмам с заданным пользователем
+            Integer overlapCount = (int) userIdFilmsLikes.get(id).stream()
+                    .filter(filmId -> userIdFilmsLikes.get(userId)
+                            .contains(filmId)).count();
+
+            // В случае равенства с максимальным значением, также сохраняем идентификатор пользователя
+            if (overlapCount == maxCount && overlapCount != 0) {
+                overlapUserIds.add(id);
+            }
+
+            // Если определили новое максимальное значение пересечений, создаем множество пользователей заново
+            if (overlapCount > maxCount) {
+                maxCount = overlapCount;
+                overlapUserIds = new HashSet<>();
+                overlapUserIds.add(id);
+            }
+        }
+
+        // Находим фильмы, которые понравились пользователям с схожими вкусами
+        HashSet<Film> res = new HashSet<>(
+                overlapUserIds.stream()
+                        .flatMap(idUser -> userIdFilmsLikes.get(idUser).stream())
+                        .filter(filmId -> !userIdFilmsLikes.get(userId).contains(filmId))
+                        .map(filmId -> filmDbRepository.getById(filmId).get())
+                        .collect(Collectors.toSet()));
+
+        return res;
     }
 }
