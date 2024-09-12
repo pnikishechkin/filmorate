@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 /**
  * Сервисный класс для управления фильмами
  */
@@ -111,9 +112,19 @@ public class FilmService {
         filmDbRepository.deleteUserLike(filmId, userId);
     }
 
-    public List<Film> getPopularFilms(Integer count) {
-        return filmDbRepository.getPopularFilms(count);
+
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        if (year == null && genreId == null) {
+            return filmDbRepository.getPopularFilms(count);
+        } else if (year != null && genreId == null) {
+            return filmDbRepository.getPopularFilmsWithYear(count, year);
+        } else if (year == null && genreId != null) {
+            return filmDbRepository.getPopularFilmsWithGenre(count, genreId);
+        } else {
+            return filmDbRepository.getPopularFilmsWithGenreAndYear(count, year, genreId);
+        }
     }
+
 
 
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
