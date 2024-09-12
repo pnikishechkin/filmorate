@@ -52,7 +52,6 @@ public class FilmExtractor implements ResultSetExtractor<Film> {
 
             Director director = Director.builder().build();
             Integer directorId = rs.getInt("director_id");
-            System.out.println(directorId);
 
             if (!rs.wasNull()) {
                 director.setId(directorId);

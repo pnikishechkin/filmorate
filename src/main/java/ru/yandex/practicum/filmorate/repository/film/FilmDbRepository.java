@@ -63,11 +63,14 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
                     "VALUES (:film_id, :genre_id);";
 
     private static final String SQL_INSERT_USER_FILMS_LIKES =
-            "INSERT INTO users_films_likes (user_id, film_id) " +
+            "MERGE INTO users_films_likes (user_id, film_id) " +
                     "VALUES (:user_id, :film_id);";
 
     private static final String SQL_DELETE_FILMS_GENRES =
             "DELETE FROM films_genres WHERE film_id=:film_id";
+
+    private static final String SQL_DELETE_FILMS_DIRECTORS =
+            "DELETE FROM film_directors WHERE film_id=:film_id";
 
     private static final String SQL_DELETE_FILM =
             "DELETE FROM films WHERE film_id=:film_id";
@@ -84,9 +87,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
     private static final String SQL_DELETE_USER_FILMS_LIKES =
             "DELETE FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
-
-    private static final String SQL_GET_LIKE_ID =
-            "SELECT id FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
 
     private static final String SQL_GET_FILMS_BY_DIRECTOR =
             "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, " +
@@ -135,7 +135,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
                     "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                     "LEFT JOIN film_directors AS fd ON f.film_id = fd.film_id " +
                     "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
-                    "LEFT JOIN likes AS l ON f.film_id = l.film_id ";
+                    "LEFT JOIN users_films_likes AS l ON f.film_id = l.film_id ";
 
     /**
      * Получить все фильмы
@@ -241,6 +241,7 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
 
         // Удаление связей фильма с жанрами
         jdbc.update(SQL_DELETE_FILMS_GENRES, params);
+        jdbc.update(SQL_DELETE_FILMS_DIRECTORS, params);
 
         // Batch добавление связей фильма с жанрами
         addGenresToDb(film);
@@ -296,12 +297,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     /**
      * Получить список популярных фильмов
      *
-     * @param count   количество выводимых фильмов
-     * @param genreId идентификатор жанра
-     * @param year    дата
+     * @param count количество выводимых фильмов
      * @return список фильмов
      */
-
     @Override
     public List<Film> getPopularFilms(Integer count) {
         return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count));
@@ -312,8 +310,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         final String sql = "SELECT * " +
                 "FROM films AS f " +
                 "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
-                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
-                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
                 "WHERE f.film_id IN (" +
                 "    SELECT film_id " +
                 "    FROM USERS_FILMS_LIKES " +
@@ -363,11 +359,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     }
 
     @Override
-    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
-        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count, "genreId", genreId, "year", year));
-    }
-
-    @Override
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         String str;
         if (sortBy.equals("year")) {
@@ -383,16 +374,16 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         String group = "GROUP BY f.film_id, fg.genre_id, fd.director_id " +
                 "ORDER BY like_count DESC; ";
         String sql;
+
         if ("director".equals(by)) {
-            sql = "WHERE d.director_name LIKE :param ";
+            sql = "WHERE LOWER(d.director_name) LIKE LOWER(:param) ";
         } else if ("title".equals(by)) {
-            sql = "WHERE f.film_name LIKE :param ";
+            sql = "WHERE LOWER(f.film_name) LIKE LOWER(:param) ";
         } else if ("director,title".equals(by) || "title,director".equals(by)) {
-            sql = "WHERE f.film_name LIKE :param OR d.director_name LIKE :param ";
+            sql = "WHERE (LOWER(f.film_name) LIKE LOWER(:param)) OR (LOWER(d.director_name) LIKE LOWER(:param)) ";
         } else {
             throw new IllegalArgumentException("Неверное значение параметра 'by': " + by);
         }
-
         String result = SQL_FILM_SEARCH + sql + group;
         String param = "%" + query + "%";
 
@@ -407,8 +398,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
      * @return список фильмов
      */
     private List<Film> getFilms(String query, Map<String, Object> map) {
-
-        System.out.println("getFilms");
 
         // Получаем все фильмы с включенными данными рейтинга
         List<Film> films = jdbc.query(query, map, mapper);

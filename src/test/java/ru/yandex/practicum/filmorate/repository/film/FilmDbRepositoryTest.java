@@ -169,24 +169,6 @@ class FilmDbRepositoryTest {
     }
 
     @Test
-    @DisplayName("Тест получения списка популярных фильмов")
-    void getPopularFilms_ReturnCorrectList() {
-
-        // init
-        Film film1 = filmDbRepository.getById(1).get();
-        Film film2 = filmDbRepository.getById(2).get();
-        Film film3 = filmDbRepository.getById(3).get();
-
-        // when
-        List<Film> films = filmDbRepository.getPopularFilms(5, 1, 2000);
-
-        // then
-        Assertions.assertEquals(film1, films.get(0));
-        Assertions.assertEquals(film2, films.get(1));
-        Assertions.assertEquals(film3, films.get(2));
-    }
-
-    @Test
     @DisplayName("Удаление имеющегося в базе фильма")
     void deleteExistFilm_FilmDeleted() {
         // when

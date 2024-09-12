@@ -44,11 +44,12 @@ public class ReviewService {
     }
 
     public Review updateReview(Review review) {
+
         checkFilmExist(review.getFilmId());
         checkUserExist(review.getUserId());
         checkReviewExist(review.getReviewId());
 
-        Review updatedReview = reviewDbRepository.updateReview(review);
+        final Review updatedReview = reviewDbRepository.updateReview(review);
 
         eventService.register(
                 updatedReview.getUserId(),

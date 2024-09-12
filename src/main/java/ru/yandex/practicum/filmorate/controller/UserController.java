@@ -48,8 +48,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public Collection<User> addFriend(@PathVariable @Positive Integer id,
-                                      @PathVariable @Positive Integer friendId) {
+    public Collection<User> addFriend(@PathVariable Integer id,
+                                      @PathVariable Integer friendId) {
         return userService.addFriend(id, friendId);
     }
 
@@ -64,6 +64,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFriends(@PathVariable @Positive Integer id,
                               @PathVariable @Positive Integer friendId) {
         userService.deleteFriend(id, friendId);
@@ -86,6 +87,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public Boolean deleteUser(@PathVariable @Positive Integer id) {
         return userService.deleteUser(id);
     }

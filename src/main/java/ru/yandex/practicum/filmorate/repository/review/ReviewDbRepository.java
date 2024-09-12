@@ -52,13 +52,13 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
                     "ON pos.review_id = neg.review_id ";
 
     private static final String SQL_GET_REVIEW_BY_IDs = SQL_GET_REVIEW_BASE +
-            "WHERE pos.review_id IN (:ids);";
+            "WHERE pos.review_id IN (:ids) ORDER BY useful DESC;";
 
     private static final String SQL_GET_ALL_REVIEWS_LIMIT = SQL_GET_REVIEW_BASE +
-            "LIMIT :count;";
+            "ORDER BY useful DESC LIMIT :count;";
 
     private static final String SQL_GET_REVIEW_BY_FILM_IDs_LIMIT = SQL_GET_REVIEW_BASE
-            + "WHERE pos.film_id = :id LIMIT :count;";
+            + "WHERE pos.film_id = :id ORDER BY useful DESC LIMIT :count;";
 
     private static final String SQL_DELETE_REVIEW_BY_ID =
             "DELETE FROM reviews WHERE review_id = :id;";
@@ -70,9 +70,10 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
     private static final String SQL_DELETE_LIKE =
             "DELETE FROM reviews_likes WHERE (review_id = :review_id AND user_id = :user_id);";
 
-    private static final String SQL_UPDATE_REVIEW =
-            "UPDATE reviews SET film_id=:film_id, user_id=:user_id, content=:content, is_positive=:is_positive " +
-                    "WHERE review_id = :review_id; ";
+    private static final String SQL_UPDATE_REVIEW = "UPDATE reviews SET content = :content, " +
+            "is_positive=:is_positive " +
+            "WHERE review_id = :review_id; ";
+
 
     @Override
     public Review addReview(Review review) {
@@ -155,13 +156,8 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
         params.addValue("film_id", review.getFilmId());
         params.addValue("is_positive", review.getIsPositive());
 
-        System.out.println("params set update");
-        System.out.println(review);
-
         // Обновление отзыва
         jdbc.update(SQL_UPDATE_REVIEW, params);
-
-        System.out.println("update");
 
         // Получение обновленного полного объекта отзыва
         return getById(review.getReviewId()).get();

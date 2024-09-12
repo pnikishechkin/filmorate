@@ -32,9 +32,6 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
     private static final String SQL_GET_USER_BY_ID =
             "SELECT * FROM users WHERE user_id=:id;";
 
-    private static final String SQL_GET_USERS_BY_IDs =
-            "SELECT * FROM users WHERE user_id IN (:ids);";
-
     private static final String SQL_INSERT_USER =
             "INSERT INTO users (email, login, user_name, birthday) " +
                     "VALUES (:email, :login, :user_name, :birthday);";
@@ -84,6 +81,7 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         Optional<User> user = getOne(SQL_GET_USER_BY_ID, params);
         return user;
     }
+
 
     /**
      * Получить список друзей пользователя
