@@ -88,9 +88,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     private static final String SQL_DELETE_USER_FILMS_LIKES =
             "DELETE FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
 
-    private static final String SQL_GET_LIKE_ID =
-            "SELECT id FROM users_films_likes WHERE user_id=:user_id AND film_id=:film_id;";
-
     private static final String SQL_GET_FILMS_BY_DIRECTOR =
             "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, " +
                     "f.mpa_id, m.mpa_name, " +
@@ -300,12 +297,9 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     /**
      * Получить список популярных фильмов
      *
-     * @param count   количество выводимых фильмов
-     * @param genreId идентификатор жанра
-     * @param year    дата
+     * @param count количество выводимых фильмов
      * @return список фильмов
      */
-
     @Override
     public List<Film> getPopularFilms(Integer count) {
         return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count));
@@ -316,8 +310,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         final String sql = "SELECT * " +
                 "FROM films AS f " +
                 "LEFT JOIN mpa AS r ON f.mpa_id = r.mpa_id " +
-                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
-                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
                 "WHERE f.film_id IN (" +
                 "    SELECT film_id " +
                 "    FROM USERS_FILMS_LIKES " +
@@ -367,11 +359,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
     }
 
     @Override
-    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
-        return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count, "genreId", genreId, "year", year));
-    }
-
-    @Override
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         String str;
         if (sortBy.equals("year")) {
@@ -411,8 +398,6 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
      * @return список фильмов
      */
     private List<Film> getFilms(String query, Map<String, Object> map) {
-
-        System.out.println("getFilms");
 
         // Получаем все фильмы с включенными данными рейтинга
         List<Film> films = jdbc.query(query, map, mapper);
