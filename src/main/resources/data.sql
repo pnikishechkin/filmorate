@@ -28,9 +28,8 @@ VALUES ('Документальный');
 INSERT INTO genres (genre_name)
 VALUES ('Боевик');
 
+-- Тестовые данные
 
-/* Тестовые данные */
-/*
 INSERT INTO films (film_name, mpa_id, description, release_date, duration)
 VALUES ('Терминатор', 1, 'Большой железный', '1990-05-19', 90);
 
@@ -116,4 +115,3 @@ VALUES(1, 2, false);
 
 INSERT INTO reviews_likes (review_id, user_id, is_useful)
 VALUES(1, 3, false);
-*/
