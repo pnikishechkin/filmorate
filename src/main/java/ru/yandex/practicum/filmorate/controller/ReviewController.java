@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.service.ReviewService;
 import java.util.List;
 
 /**
- * Контроллер для реализации API методов, связанных с фильмами
+ * Контроллер для реализации API методов, связанных с отзывами
  */
 @RestController
 @RequestMapping("/reviews")
@@ -27,8 +27,8 @@ public class ReviewController {
     /**
      * Добавление нового отзыва
      *
-     * @param review
-     * @return
+     * @param review объект добавляемого отзыва
+     * @return объект добавленного отзыва
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -39,8 +39,8 @@ public class ReviewController {
     /**
      * Редактирование уже имеющегося отзыва
      *
-     * @param review
-     * @return
+     * @param review объект редактируемого отзыва
+     * @return объект измененного отзыва
      */
     @PutMapping
     public Review updateReview(@Valid @RequestBody Review review) {
@@ -50,23 +50,23 @@ public class ReviewController {
     /**
      * Удаление уже имеющегося отзыва
      *
-     * @param id
-     * @return
+     * @param id идентификатор отзыва
+     * @return флаг, был ли удален отзыв
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Boolean deleteReview(@Positive @PathVariable Integer id) {
+    public Boolean deleteReview(@PathVariable @Positive Integer id) {
         return reviewService.deleteReview(id);
     }
 
     /**
      * Получение отзыва по идентификатору
      *
-     * @param id
-     * @return
+     * @param id идентификатор отзыва
+     * @return объект отзыва
      */
     @GetMapping("/{id}")
-    public Review getReview(@Positive @PathVariable Integer id) {
+    public Review getReview(@PathVariable @Positive Integer id) {
         return reviewService.getReviewById(id);
     }
 
@@ -75,7 +75,7 @@ public class ReviewController {
      *
      * @param filmId идентификтор фильма. Если не указан, получаем по всем фильмам
      * @param count  количество отзывов. Если не указано, то выводится 10 шт.
-     * @return
+     * @return список отзыов
      */
     @GetMapping
     public List<Review> getReviewsByFilm(@RequestParam(value = "filmId", required = false) Integer filmId,
@@ -90,8 +90,8 @@ public class ReviewController {
      * @param userId идентификатор пользователя
      */
     @PutMapping("/{id}/like/{userId}")
-    public void setLike(@Positive @PathVariable Integer id,
-                        @Positive @PathVariable Integer userId) {
+    public void setLike(@PathVariable @Positive Integer id,
+                        @PathVariable @Positive Integer userId) {
         reviewService.setLike(id, userId);
     }
 
@@ -102,8 +102,8 @@ public class ReviewController {
      * @param userId идентификатор пользователя
      */
     @PutMapping("/{id}/dislike/{userId}")
-    public void setDislike(@Positive @PathVariable Integer id,
-                           @Positive @PathVariable Integer userId) {
+    public void setDislike(@PathVariable @Positive Integer id,
+                           @PathVariable @Positive Integer userId) {
         reviewService.setDislike(id, userId);
     }
 
@@ -114,8 +114,8 @@ public class ReviewController {
      * @param userId идентификатор пользователя
      */
     @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLike(@Positive @PathVariable Integer id,
-                           @Positive @PathVariable Integer userId) {
+    public void deleteLike(@PathVariable @Positive Integer id,
+                           @PathVariable @Positive Integer userId) {
         reviewService.deleteLike(id, userId);
     }
 }

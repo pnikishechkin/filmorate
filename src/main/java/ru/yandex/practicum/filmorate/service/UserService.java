@@ -96,9 +96,6 @@ public class UserService {
     }
 
     private void checkExistUser(Integer id) {
-//        userDbRepository.getById(id).orElseThrow(() ->
-//                new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует"));
-//    }
         if (userDbRepository.getById(id).isEmpty()) {
             throw new NotFoundException("Ошибка! Пользователя с заданным идентификатором не существует");
         }

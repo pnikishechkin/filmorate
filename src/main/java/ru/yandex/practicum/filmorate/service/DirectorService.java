@@ -10,6 +10,9 @@ import ru.yandex.practicum.filmorate.repository.director.DirectorDbRepository;
 
 import java.util.List;
 
+/**
+ * Сервисный класс для управления режиссерами
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

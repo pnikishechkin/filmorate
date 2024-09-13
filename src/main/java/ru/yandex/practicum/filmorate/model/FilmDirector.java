@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * Связь фильм-режиссер
+ */
 @Data
 @Builder
 @EqualsAndHashCode

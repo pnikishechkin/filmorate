@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Репозиторий для управления событиями
+ */
 @Repository
 public class EventDbRepository extends BaseDbRepository<Event> implements EventRepository {
     private static final String SQL_INSERT_EVENT =
@@ -29,6 +32,12 @@ public class EventDbRepository extends BaseDbRepository<Event> implements EventR
         super(jdbc, mapper);
     }
 
+    /**
+     * Добавить событие
+     *
+     * @param event объект добавляемого события
+     * @return объект добавленного события
+     */
     @Override
     public Event addEvent(Event event) {
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -51,6 +60,11 @@ public class EventDbRepository extends BaseDbRepository<Event> implements EventR
         return event;
     }
 
+    /**
+     * Получить событие по идентификатору пользователя
+     *
+     * @param userId идентификатор пользователя
+     */
     @Override
     public List<Event> getByUserId(Integer userId) {
         return getMany(
@@ -59,6 +73,11 @@ public class EventDbRepository extends BaseDbRepository<Event> implements EventR
         );
     }
 
+    /**
+     * Получить событие по идентификатору
+     *
+     * @param eventId идентификатор события
+     */
     @Override
     public Optional<Event> getByEventId(Integer eventId) {
         return getOne(

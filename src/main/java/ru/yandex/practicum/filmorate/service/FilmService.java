@@ -113,7 +113,6 @@ public class FilmService {
         filmDbRepository.deleteUserLike(filmId, userId);
     }
 
-
     public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
         if (year == null && genreId == null) {
             return filmDbRepository.getPopularFilms(count);
@@ -125,8 +124,6 @@ public class FilmService {
             return filmDbRepository.getPopularFilmsWithGenreAndYear(count, year, genreId);
         }
     }
-
-
 
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         if (!sortBy.equals("year") && !sortBy.equals("likes")) {

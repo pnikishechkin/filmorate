@@ -40,7 +40,7 @@ public class FilmExtractor implements ResultSetExtractor<Film> {
                 film.setDirectors(new LinkedHashSet<>());
             }
 
-            // Создаем объект жанра, если по нему есть данные есть
+            // Создаем объект жанра, если по нему есть данные
             Genre genre = Genre.builder().build();
             Integer genreId = rs.getInt("genre_id");
 
@@ -50,6 +50,7 @@ public class FilmExtractor implements ResultSetExtractor<Film> {
                 film.getGenres().add(genre);
             }
 
+            // Создаем объект режиссера, если по нему есть данные
             Director director = Director.builder().build();
             Integer directorId = rs.getInt("director_id");
 

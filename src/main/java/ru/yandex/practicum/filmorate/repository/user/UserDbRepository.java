@@ -82,7 +82,6 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         return user;
     }
 
-
     /**
      * Получить список друзей пользователя
      *
@@ -203,11 +202,23 @@ public class UserDbRepository extends BaseDbRepository<User> implements UserRepo
         return (res == 1);
     }
 
+    /**
+     * Получить список лайков у фильма по идентификатору пользователя
+     *
+     * @param userId идентификатор пользователя
+     * @return список лайков
+     */
     public List<Integer> getIdFilmsLikesByUser(Integer userId) {
         String sql = "SELECT film_id FROM users_films_likes WHERE user_id = :user_id;";
         return jdbc.queryForList(sql, Map.of("user_id", userId), Integer.class);
     }
 
+    /**
+     * Получить рекомендации по идентификатору пользователя
+     *
+     * @param userId идентификатор пользователя
+     * @return сет фильмов
+     */
     public Set<Film> getRecommendations(Integer userId) {
 
         Map<Integer, List<Integer>> userIdFilmsLikes = new HashMap<>();
