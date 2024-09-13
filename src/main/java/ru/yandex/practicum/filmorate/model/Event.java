@@ -13,20 +13,19 @@ import ru.yandex.practicum.filmorate.util.Operation;
 import java.sql.Timestamp;
 
 /**
- * Событие
+ * Событие для ленты
  */
 @Data
 @Builder
 @EqualsAndHashCode(of = "eventId")
 @ToString
 public class Event {
-    private Integer eventId; // pk
+    private Integer eventId;
     @NotNull
-    private Integer userId; // ref user.id
+    private Integer userId;
     private Integer entityId;
     private EventType eventType;
     private Operation operation;
-
     @JsonProperty("timestamp")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Timestamp timestamp;
