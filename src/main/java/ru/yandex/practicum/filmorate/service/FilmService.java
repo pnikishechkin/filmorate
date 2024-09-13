@@ -6,13 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.film.FilmDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserDbRepository;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -88,8 +89,8 @@ public class FilmService {
 
         eventService.register(
                 userId,
-                Event.Operation.ADD,
-                Event.EventType.LIKE,
+                Operation.ADD,
+                EventType.LIKE,
                 filmId
         );
     }
@@ -104,8 +105,8 @@ public class FilmService {
 
         eventService.register(
                 userId,
-                Event.Operation.REMOVE,
-                Event.EventType.LIKE,
+                Operation.REMOVE,
+                EventType.LIKE,
                 filmId
         );
 

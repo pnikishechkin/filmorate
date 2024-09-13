@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import ru.yandex.practicum.filmorate.util.EventType;
+import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.sql.Timestamp;
 
@@ -25,16 +27,4 @@ public class Event {
     @JsonProperty("timestamp")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Timestamp timestamp;
-
-    public enum EventType {
-        LIKE,
-        REVIEW,
-        FRIEND
-    }
-
-    public enum Operation {
-        ADD,
-        UPDATE,
-        REMOVE
-    }
 }
