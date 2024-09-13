@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * Режиссер
+ */
 @Data
 @Builder
 @EqualsAndHashCode(of = "id")

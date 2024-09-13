@@ -12,6 +12,9 @@ import ru.yandex.practicum.filmorate.util.Operation;
 
 import java.sql.Timestamp;
 
+/**
+ * Событие
+ */
 @Data
 @Builder
 @EqualsAndHashCode(of = "eventId")

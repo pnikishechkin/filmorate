@@ -25,11 +25,22 @@ public class GenreController {
 
     private final GenreService genreService;
 
+    /**
+     * Получить список всех жанров фильмов
+     *
+     * @return список жанров
+     */
     @GetMapping
     public List<Genre> getGenres() {
         return genreService.getGenres();
     }
 
+    /**
+     * Получить жанр по идентификатору
+     *
+     * @param id идентификатор жанра
+     * @return объект жанра
+     */
     @GetMapping("/{id}")
     public Genre getGenre(@PathVariable @Positive Integer id) {
         return genreService.getGenreById(id);

@@ -305,6 +305,13 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return this.getFilms(SQL_GET_POPULAR_FILMS, Map.of("count", count));
     }
 
+    /**
+     * Получить список популярных фильмов
+     *
+     * @param count количество выводимых фильмов
+     * @param year  год выводимых фильмов
+     * @return список фильмов
+     */
     @Override
     public List<Film> getPopularFilmsWithYear(Integer count, Integer year) {
         final String sql = "SELECT * " +
@@ -321,6 +328,13 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return this.getFilms(sql, Map.of("count", count, "year", year));
     }
 
+    /**
+     * Получить список популярных фильмов
+     *
+     * @param count   количество выводимых фильмов
+     * @param genreId жанр выводимых фильмов
+     * @return список фильмов
+     */
     @Override
     public List<Film> getPopularFilmsWithGenre(Integer count, Integer genreId) {
         final String sql = "SELECT * " +
@@ -339,6 +353,14 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return this.getFilms(sql, Map.of("count", count, "genreId", genreId));
     }
 
+    /**
+     * Получить список популярных фильмов
+     *
+     * @param count   количество выводимых фильмов
+     * @param year    год выводимых фильмов
+     * @param genreId жанр выводимых фильмов
+     * @return список фильмов
+     */
     @Override
     public List<Film> getPopularFilmsWithGenreAndYear(Integer count, Integer year, Integer genreId) {
         final String sql = "SELECT * " +
@@ -358,6 +380,13 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return this.getFilms(sql, Map.of("count", count, "year", year, "genreId", genreId));
     }
 
+    /**
+     * Получить список фильмов по идентификатору режиссера
+     *
+     * @param directorId идентификатор режиссера
+     * @param sortBy     вариант сортировки
+     * @return список фильмов
+     */
     @Override
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         String str;
@@ -369,6 +398,13 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         return this.getFilms(str, Map.of("director_id", directorId));
     }
 
+    /**
+     * Получить список фильмов по поиску
+     *
+     * @param query текст для поиска
+     * @param by    принимает значения director (поиск по режиссёру), title (поиск по названию), либо оба значения враз
+     * @return список фильмов
+     */
     @Override
     public List<Film> searchFilm(String query, String by) {
         String group = "GROUP BY f.film_id, fg.genre_id, fd.director_id " +
@@ -466,11 +502,16 @@ public class FilmDbRepository extends BaseDbRepository<Film> implements FilmRepo
         }
     }
 
+    /**
+     * Добавление связей фильма с режиссерами в БД (Batch)
+     *
+     * @param film объект фильма
+     */
     private void addDirectorsToDb(Film film) {
 
         MapSqlParameterSource params;
 
-        // Batch обновление связей фильма
+        // Batch обновление связей фильма с режиссерами
         if (film.getDirectors() != null) {
             List<SqlParameterSource> listParams = new ArrayList<>();
             for (Director director : film.getDirectors()) {

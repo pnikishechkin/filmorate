@@ -15,20 +15,14 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "reviewId")
 @ToString
 public class Review {
-
     private Integer reviewId;
-
     @NotBlank(message = "Отзыв не может быть пустым")
     private String content;
-
     @NotNull
     private Integer userId;
-
     @NotNull
     private Integer filmId;
-
     @NotNull
     private Boolean isPositive;
-
     private Integer useful;
 }

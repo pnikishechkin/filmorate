@@ -14,6 +14,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Сервисный класс для управления событиями
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

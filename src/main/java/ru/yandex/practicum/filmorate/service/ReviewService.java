@@ -122,5 +122,4 @@ public class ReviewService {
         filmDbRepository.getById(filmId).orElseThrow(
                 () -> new NotFoundException("Ошибка! Фильма с заданным идентификатором не существует"));
     }
-
 }

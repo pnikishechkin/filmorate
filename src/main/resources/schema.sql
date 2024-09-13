@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS reviews
     film_id      INT     NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
     user_id      INT     NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     content      VARCHAR NOT NULL,
-    is_positive     BOOL NOT NULL,
+    is_positive  BOOL NOT NULL,
     CONSTRAINT unique_film_user UNIQUE (film_id, user_id)
 );
 

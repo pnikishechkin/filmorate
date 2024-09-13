@@ -74,7 +74,12 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
             "is_positive=:is_positive " +
             "WHERE review_id = :review_id; ";
 
-
+    /**
+     * Добавить новый отзыв
+     *
+     * @param review объект добавляемого отзыва
+     * @return объект добавленного отзыва
+     */
     @Override
     public Review addReview(Review review) {
         // Добавление записи в таблицу reviews
@@ -94,6 +99,12 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
         return review;
     }
 
+    /**
+     * Получить отзыв по идентификатору
+     *
+     * @param id идентификатор отзыва
+     * @return опционально - объект отзыва
+     */
     @Override
     public Optional<Review> getById(Integer id) {
         List<Integer> ids = List.of(id);
@@ -108,6 +119,11 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
         return review;
     }
 
+    /**
+     * Получить все отзывы
+     *
+     * @return список всех отзывов
+     */
     @Override
     public List<Review> getAll(Integer count) {
         Map<String, Object> params = Map.of("count", count);
@@ -116,6 +132,13 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
         return getMany(SQL_GET_ALL_REVIEWS_LIMIT, params);
     }
 
+    /**
+     * Получить отзыв по идентификатору фильма
+     *
+     * @param filmId идентификатор фильма
+     * @param count  количество отзывов
+     * @return список отзыов
+     */
     @Override
     public List<Review> getByFilmId(Integer filmId, Integer count) {
         Map<String, Object> params = Map.of("id", filmId,
@@ -123,11 +146,24 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
         return getMany(SQL_GET_REVIEW_BY_FILM_IDs_LIMIT, params);
     }
 
+    /**
+     * Удалить отзыв
+     *
+     * @param id идентификатор удаляемого отзыва
+     * @return флаг, был ли удален отзыв
+     */
     @Override
     public Boolean deleteReview(Integer id) {
         return (jdbc.update(SQL_DELETE_REVIEW_BY_ID, Map.of("id", id)) == 1);
     }
 
+    /**
+     * Рейтинг полезности
+     *
+     * @param id       идентификатор отзыва
+     * @param userId   идентификатор пользователя
+     * @param isUseful рейтинг полезности
+     */
     @Override
     public void setUseful(Integer id, Integer userId, Boolean isUseful) {
         Map<String, Object> params = Map.of(
@@ -137,6 +173,12 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
         jdbc.update(SQL_MERGE_REVIEW_LIKES, params);
     }
 
+    /**
+     * Удалить лайк у отзыва
+     *
+     * @param id     идентификатор удаляемого отзыва
+     * @param userId идентификатор пользователя
+     */
     @Override
     public void deleteLike(Integer id, Integer userId) {
         Map<String, Object> params = Map.of(
@@ -145,6 +187,12 @@ public class ReviewDbRepository extends BaseDbRepository<Review> implements Revi
         jdbc.update(SQL_DELETE_LIKE, params);
     }
 
+    /**
+     * Редактирование уже имеющегося отзыва
+     *
+     * @param review объект редактируемого отзыва
+     * @return объект измененного отзыва
+     */
     @Override
     public Review updateReview(Review review) {
         MapSqlParameterSource params = new MapSqlParameterSource();
