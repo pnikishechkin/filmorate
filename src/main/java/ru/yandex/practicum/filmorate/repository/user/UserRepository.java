@@ -23,4 +23,7 @@ public interface UserRepository {
     void deleteFriend(Integer userId, Integer friendId);
 
     Set<User> getCommonFriends(Integer id, Integer otherId);
+
+    Boolean deleteUser(Integer id);
+
 }

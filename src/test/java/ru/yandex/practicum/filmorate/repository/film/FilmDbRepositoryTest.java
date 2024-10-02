@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.repository.director.DirectorDbRepository;
+import ru.yandex.practicum.filmorate.repository.director.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.repository.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.repository.genre.GenreRowMapper;
 import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
@@ -21,7 +23,8 @@ import java.util.Set;
 
 @JdbcTest
 @Import({FilmDbRepository.class, FilmExtractor.class, FilmGenreRowMapper.class, FilmRowMapper.class,
-        GenreDbRepository.class, GenreRowMapper.class, MpaDbRepository.class, MpaRowMapper.class})
+        GenreDbRepository.class, GenreRowMapper.class, MpaDbRepository.class, MpaRowMapper.class,
+        DirectorDbRepository.class, DirectorRowMapper.class, FilmDirectorRowMapper.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DisplayName("FilmDbRepositoryTest")
 class FilmDbRepositoryTest {
@@ -125,7 +128,7 @@ class FilmDbRepositoryTest {
         Film film = filmDbRepository.getById(2).get();
 
         // when
-        filmDbRepository.adduserLike(2, 3);
+        filmDbRepository.addUserLike(2, 3);
 
         // then
         Assertions.assertTrue(filmDbRepository.getLikeFilmsByUserId(3).contains(film));
@@ -166,20 +169,26 @@ class FilmDbRepositoryTest {
     }
 
     @Test
-    @DisplayName("Тест получения списка популярных фильмов")
-    void getPopularFilms_ReturnCorrectList() {
-
-        // init
-        Film film1 = filmDbRepository.getById(1).get();
-        Film film2 = filmDbRepository.getById(2).get();
-        Film film3 = filmDbRepository.getById(3).get();
-
+    @DisplayName("Удаление имеющегося в базе фильма")
+    void deleteExistFilm_FilmDeleted() {
         // when
-        List<Film> films = filmDbRepository.getPopularFilms(5);
+        Boolean res = filmDbRepository.deleteFilm(FIRST_FILM_ID);
 
         // then
-        Assertions.assertEquals(film1, films.get(0));
-        Assertions.assertEquals(film2, films.get(1));
-        Assertions.assertEquals(film3, films.get(2));
+        Assertions.assertTrue(res);
+        Assertions.assertEquals(2, filmDbRepository.getAll().size());
+        Assertions.assertFalse(filmDbRepository.getAll().contains(getFirstFilm()));
     }
+
+    @Test
+    @DisplayName("Удаление фильма, которого нет в базе")
+    void deleteNotExistFilm_ResultFalse() {
+        // when (идентификатор не существующего фильма)
+        Boolean res = filmDbRepository.deleteFilm(100);
+
+        // then
+        Assertions.assertFalse(res);
+        Assertions.assertEquals(3, filmDbRepository.getAll().size());
+    }
+
 }
